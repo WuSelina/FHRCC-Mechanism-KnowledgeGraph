@@ -4,14 +4,24 @@
 ## Description
 Mechanism knowledge graph (KG) for fumarase-deficient renal cell carcinoma (FHRCC)/ HLRCC-associated RCC (HLRCC).
 
+### Motivation
+FH inactivation alone is insufficient for tumorigenesis in mouse models. Downstream metabolic, redox, epigenetic, and signaling adaptations appear required for cancer transformation. There do not appear to be comprehensive pathway diagrams for FHRCC tumor formation, so I created one to study. I also wanted to practice utilizing a KG, so this project takes causal assumptions and encodes them into a queryable graph.
+
 This is a study tool and exploratory side project. Unlike some KG guides, this project implements a typed, schema-validated JSON graph to
 - Encode biological entities (genes, metabolites, processes, states, phenotypes) as nodes
-- Encode mechanistic claims (e.g. *causes*, *inhibits*, *enables*) as edges with confidence and evidence level
-- Supports *explainable path search* between entities (e.g. FH loss → cancer)
-- Ranks alternative mechanistic explanations using weighted shortest-path logic
+- Encode mechanism claims (e.g. *causes*, *inhibits*, *enables*) as edges with confidence and evidence level
+- Supports path search between entities (e.g. FH loss → cancer)
+- Ranks alternative mechanism explanations using weighted shortest-path logic
 - Can print results to the terminal and/or export them as readable Markdown reports
 
 **Please refer to `docs/` for important assumptions and scope of the project.**
+
+### Architecture (High-level)
+- A **node** represents a biological state or entity
+    - e.g., gene, process, metabolite, phenotype
+- An **edge** represents a mechanism path/explanation (with type) connecting two nodes
+    - Edges are directed, typed, and follow biology
+- Queries are multi-hop, ranked, path-explainable
 
 
 ## Quick Run
@@ -52,6 +62,10 @@ python scripts/kg.py explain \
 
 
 ## Interpreting Outputs
+Example explainable query following mechanismpaths from FH loss to cancer phenotypes:
+
+![Example output markdown](docs\screenshots\screenshot_output_markdown_demo.png)
+
 ### Paths
 Each path respresents a plausible mechanistic explanation (not a prediction).
 - e.g. FH loss → TCA cycle blockade → fumarate accumulation → αKGDD inhibition → pseudohypoxia → cancer
