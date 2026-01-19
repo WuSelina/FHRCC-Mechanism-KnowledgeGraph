@@ -94,5 +94,5 @@ Shared outputs (e.g. HIF stabilization/activation, angiogenesis) are modeled as 
 - Secondary alterations are universal (or required)
 - Pathway activation implies therapeutic vulnerability
 
-## Reference Pathway
-![Alt text](image-1.png)
+## Reference Network
+![FHRCC draft network](.\screenshots\screenshot_pathway_draft.png)
