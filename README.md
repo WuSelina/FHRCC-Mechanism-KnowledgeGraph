@@ -64,7 +64,7 @@ python scripts/kg.py explain \
 ## Interpreting Outputs
 Example explainable query following mechanismpaths from FH loss to cancer phenotypes:
 
-![Example output markdown](docs\screenshots\screenshot_output_markdown_demo.png)
+![Example output markdown](docs/screenshots/screenshot_output_markdown_demo.png)
 
 ### Paths
 Each path respresents a plausible mechanistic explanation (not a prediction).

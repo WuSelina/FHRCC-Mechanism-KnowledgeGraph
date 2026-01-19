@@ -95,4 +95,4 @@ Shared outputs (e.g. HIF stabilization/activation, angiogenesis) are modeled as 
 - Pathway activation implies therapeutic vulnerability
 
 ## Reference Network
-![FHRCC draft network](.\screenshots\screenshot_pathway_draft.png)
+![FHRCC draft network](screenshots/screenshot_pathway_draft.png)
