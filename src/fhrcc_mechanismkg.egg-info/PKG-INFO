@@ -1,9 +1,0 @@
-Metadata-Version:
-Name: fhrcc-mechanismkg
-Version: 0.1.0
-Summary: Practice knowledge graph for FH-deficient RCC (study tool)
-Author: Selina Wu
-Requires-Python: >=3.10
-Provides-Extra: dev
-Requires-Dist: pytest>=7; extra == "dev"
-Requires-Dist: ruff>=0.4; extra == "dev"

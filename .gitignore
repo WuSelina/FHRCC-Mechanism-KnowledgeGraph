@@ -5,3 +5,4 @@ __pycache__/
 .vscode/ 
 .idea/ 
 reports/ 
+*.egg-info/ 
