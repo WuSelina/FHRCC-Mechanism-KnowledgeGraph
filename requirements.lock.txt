@@ -1,0 +1,8 @@
+colorama==0.4.6
+# Editable with no version control yet (fhrcc-mechanismkg==0.1.0)
+-e c:\users\selinawu\documents\boutros lab\dissertation\studying\fhrcc_mechanismkg
+iniconfig==2.3.0
+packaging==25.0
+pluggy==1.6.0
+Pygments==2.19.2
+pytest==9.0.2

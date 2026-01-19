@@ -1,0 +1,829 @@
+{
+	"nodes": [
+		{
+			"id": "gene:FH",
+			"type": "gene",
+			"name": "FH",
+			"synonyms": [],
+			"description": "Represents biallelic inactivation of FH (loss of FH function).",
+			"xrefs": {
+				"HGNC": "FH"
+			},
+			"tags": ["loss_of_function", "root_event"]
+		},
+		{
+			"id": "metabolite:fumarate",
+			"type": "metabolite",
+			"name": "Fumarate",
+			"synonyms": [],
+			"description": null,
+			"xrefs": {},
+			"tags": []
+		},
+		{
+			"id": "process:tca_cycle_blockade",
+			"type": "process",
+			"name": "TCA cycle blockade",
+			"synonyms": [],
+			"description": null,
+			"xrefs": {},
+			"tags": []
+		},
+		{
+			"id": "process:protein_succination",
+			"type": "process",
+			"name": "Protein succination",
+			"synonyms": [],
+			"description": null,
+			"xrefs": {},
+			"tags": []
+		},
+		{
+			"id": "protein:KEAP1",
+			"type": "protein",
+			"name": "KEAP1",
+			"synonyms": [],
+			"description": null,
+			"xrefs": {
+				"HGNC": "KEAP1"
+			},
+			"tags": []
+		},
+		{
+			"id": "protein:NRF2",
+			"type": "protein",
+			"name": "NRF2",
+			"synonyms": [
+				"NFE2L2"
+			],
+			"description": null,
+			"xrefs": {
+				"HGNC": "NFE2L2"
+			},
+			"tags": []
+		},
+		{
+			"id": "pathway:NRF2_ARE",
+			"type": "pathway",
+			"name": "NRF2-ARE antioxidant response",
+			"synonyms": [],
+			"description": null,
+			"xrefs": {},
+			"tags": []
+		},
+		{
+			"id": "state:oxidative_stress",
+			"type": "state",
+			"name": "Oxidative stress",
+			"synonyms": [],
+			"description": null,
+			"xrefs": {},
+			"tags": []
+		},
+		{
+			"id": "process:akg_dioxygenase_inhibition",
+			"type": "process",
+			"name": "αKG-dependent dioxygenase inhibition",
+			"synonyms": [],
+			"description": "Fumarate competitively inhibits αKG-dependent dioxygenases.",
+			"xrefs": {},
+			"tags": []
+		},
+		{
+			"id": "process:PHD_inhibition",
+			"type": "process",
+			"name": "HIF prolyl hydroxylase (PHD) inhibition",
+			"synonyms": [],
+			"description": "Inhibition of PHD enzymes that normally hydroxylate HIFα for degradation.",
+			"xrefs": {},
+			"tags": []
+		},
+		{
+			"id": "state:HIF_stabilization",
+			"type": "state",
+			"name": "HIF stabilization",
+			"synonyms": [],
+			"description": "HIFα is stabilized (impaired degradation) in normoxia due to PHD inhibition.",
+			"xrefs": {},
+			"tags": []
+		},
+		{
+			"id": "state:pseudohypoxia",
+			"type": "state",
+			"name": "Pseudohypoxia",
+			"synonyms": [],
+			"description": "Hypoxia-like transcriptional activity activated despite in normoxia.",
+			"xrefs": {},
+			"tags": []
+		},
+		{
+			"id": "process:TET_KDM_inhibition",
+			"type": "process",
+			"name": "TET/KDM demethylase inhibition",
+			"synonyms": [],
+			"description": "Inhibition of TET DNA demethylases and Jumonji KDM histone demethylases.",
+			"xrefs": {},
+			"tags": []
+		},
+		{
+			"id": "process:DNA_hypermethylation",
+			"type": "process",
+			"name": "Global DNA hypermethylation",
+			"synonyms": [],
+			"description": "Genome-wide increase in DNA methylation due to impaired demethylation.",
+			"xrefs": {},
+			"tags": []
+		},
+		{
+			"id": "phenotype:CIMP",
+			"type": "phenotype",
+			"name": "CpG island methylator phenotype (CIMP)",
+			"synonyms": [],
+			"description": "Hypermethylated epigenome state characteristic of FH/SDH oncometabolite tumors.",
+			"xrefs": {},
+			"tags": []
+		},
+		{
+			"id": "process:mitochondrial_damage",
+			"type": "process",
+			"name": "Mitochondrial damage",
+			"synonyms": [],
+			"description": "Mitochondrial dysfunction/damage associated with FH loss, fumarate, and ROS.",
+			"xrefs": {},
+			"tags": []
+		},
+		{
+			"id": "process:mtDNA_leakage",
+			"type": "process",
+			"name": "Mitochondrial DNA leakage to cytosol",
+			"synonyms": [],
+			"description": "Release of mitochondrial DNA into the cytosol under mitochondrial stress.",
+			"xrefs": {},
+			"tags": []
+		},
+		{
+			"id": "pathway:cGAS_STING",
+			"type": "pathway",
+			"name": "cGAS-STING innate immune sensing",
+			"synonyms": [],
+			"description": "Cytosolic DNA sensing pathway that can induce interferon signaling.",
+			"xrefs": {},
+			"tags": []
+		},
+		{
+			"id": "process:chronic_interferon_signaling",
+			"type": "process",
+			"name": "Chronic interferon signaling",
+			"synonyms": [],
+			"description": "Sustained interferon response that may promote immune dysfunction/exhaustion.",
+			"xrefs": {},
+			"tags": []
+		},
+		{
+			"id": "phenotype:immunosuppressive_TME",
+			"type": "phenotype",
+			"name": "Immunosuppressive tumor microenvironment (TME)",
+			"synonyms": [],
+			"description": "Microenvironment with reduced effective cytotoxic anti-tumor immunity.",
+			"xrefs": {},
+			"tags": []
+		},
+		{
+			"id": "process:antioxidant_defense",
+			"type": "process",
+			"name": "Antioxidant defenses",
+			"synonyms": [],
+			"description": "Cellular antioxidant programs (e.g., glutathione, detox enzymes) downstream of NRF2.",
+			"xrefs": {},
+			"tags": []
+		},
+		{
+			"id": "process:angiogenesis_program",
+			"type": "process",
+			"name": "Angiogenesis program",
+			"synonyms": [],
+			"description": "Angiogenic transcriptional program downstream of HIF (e.g., VEGF).",
+			"xrefs": {},
+			"tags": []
+		},
+		{
+			"id": "phenotype:tumor_vascularity",
+			"type": "phenotype",
+			"name": "Tumor vascularity",
+			"synonyms": [],
+			"description": "High vascularity tumor phenotype.",
+			"xrefs": {},
+			"tags": []
+		},
+		{
+			"id": "process:immune_evasion_program",
+			"type": "process",
+			"name": "Immune evasion program",
+			"synonyms": [],
+			"description": "Composite immune evasion state (simplified placeholder).",
+			"xrefs": {},
+			"tags": []
+		},
+		{
+			"id": "process:antigen_presentation_down",
+			"type": "process",
+			"name": "Reduced antigen presentation",
+			"synonyms": [],
+			"description": "Lowered antigen presentation.",
+			"xrefs": {},
+			"tags": []
+		},
+		{
+			"id": "phenotype:cancer",
+			"type": "phenotype",
+			"name": "Cancer state",
+			"synonyms": ["malignancy"],
+			"description": "Probabilistic terminal state representing malignant cancer transformation/progression.",
+			"xrefs": {},
+			"tags": []
+		},
+		{
+			"id": "process:genomic_instability",
+			"type": "process",
+			"name": "Genomic instability / chromosomal instability",
+			"synonyms": ["CIN"],
+			"description": "Genome-wide instability; high fraction genome altered and aneuploidy.",
+			"xrefs": {},
+			"tags": []
+		},
+		{
+			"id": "gene:NF2",
+			"type": "gene",
+			"name": "NF2",
+			"synonyms": ["Merlin"],
+			"description": "Tumor suppressor; loss can dysregulate Hippo signaling and growth control.",
+			"xrefs": {"HGNC": "NF2"},
+			"tags": ["cooperator"]
+		},
+		{
+			"id": "pathway:Hippo",
+			"type": "pathway",
+			"name": "Hippo signaling pathway",
+			"synonyms": [],
+			"description": "Growth control pathway; dysregulation can promote proliferation/survival.",
+			"xrefs": {},
+			"tags": ["cooperator"]
+		},
+		{
+			"id": "pathway:RTK_signaling",
+			"type": "pathway",
+			"name": "Receptor tyrosine kinase (RTK) signaling",
+			"synonyms": [],
+			"description": "RTK signaling; Includes MET/EGFR/others.",
+			"xrefs": {},
+			"tags": ["cooperator"]
+		},
+		{
+			"id": "pathway:PI3K_AKT_mTOR",
+			"type": "pathway",
+			"name": "PI3K–AKT–mTOR signaling",
+			"synonyms": [],
+			"description": "Growth and survival signaling; often downstream of RTKs.",
+			"xrefs": {},
+			"tags": ["cooperator"]
+		},
+		{
+			"id": "process:proliferation_survival_program",
+			"type": "process",
+			"name": "Proliferation/survival program",
+			"synonyms": [],
+			"description": "Generic growth/survival output program (placeholder).",
+			"xrefs": {},
+			"tags": ["cooperator"]
+		},
+		{
+			"id": "process:growth_factor_signaling_context",
+			"type": "process",
+			"name": "Growth factor signaling context",
+			"synonyms": [],
+			"description": "Generic pro-growth signaling (placeholder).",
+			"xrefs": {},
+			"tags": ["cooperator"]
+		}
+	],
+	"edges": [
+		{
+			"subject": "gene:FH",
+			"predicate": "causes",
+			"object": "process:tca_cycle_blockade",
+			"weight": 0.9,
+			"evidence_level": "review_or_consensus",
+			"polarity": null,
+			"mechanism": "loss of FH activity blocks fumarate to malate, leading to fumarate accumulation",
+			"context": {},
+			"citations": [],
+			"notes": "Represents effect of FH loss rather than normal FH enzymatic activity."
+
+		},
+		{
+			"subject": "process:tca_cycle_blockade",
+			"predicate": "causes",
+			"object": "metabolite:fumarate",
+			"weight": 0.9,
+			"evidence_level": "review_or_consensus",
+			"polarity": null,
+			"mechanism": "fumarate accumulates upstream of FH blockade",
+			"context": {},
+			"citations": [],
+			"notes": null
+		},
+		{
+			"subject": "metabolite:fumarate",
+			"predicate": "modifies",
+			"object": "process:protein_succination",
+			"weight": 0.85,
+			"evidence_level": "biochemical_direct",
+			"polarity": null,
+			"mechanism": "succination of cysteine residues (2SC adducts)",
+			"context": {},
+			"citations": [],
+			"notes": null
+		},
+		{
+			"subject": "process:protein_succination",
+			"predicate": "inhibits",
+			"object": "protein:KEAP1",
+			"weight": 0.7,
+			"evidence_level": "cell_model",
+			"polarity": null,
+			"mechanism": "KEAP1 succination impairs NRF2 degradation",
+			"context": {},
+			"citations": [],
+			"notes": null
+		},
+		{
+			"subject": "protein:KEAP1",
+			"predicate": "inhibits",
+			"object": "protein:NRF2",
+			"weight": 0.8,
+			"evidence_level": "review_or_consensus",
+			"polarity": "-",
+			"mechanism": "KEAP1 targets NRF2 for degradation (baseline regulation)",
+			"context": {},
+			"citations": [],
+			"notes": null
+		},
+		{
+			"subject": "protein:NRF2",
+			"predicate": "activates",
+			"object": "pathway:NRF2_ARE",
+			"weight": 0.85,
+			"evidence_level": "review_or_consensus",
+			"polarity": null,
+			"mechanism": "NRF2 transcriptional activation of antioxidant response genes",
+			"context": {},
+			"citations": [],
+			"notes": null
+		},
+		{
+			"subject": "state:oxidative_stress",
+			"predicate": "activates",
+			"object": "pathway:NRF2_ARE",
+			"weight": 0.55,
+			"evidence_level": "hypothesis",
+			"polarity": null,
+			"mechanism": "oxidative stress can impair KEAP1-mediated NRF2 degradation, increasing NRF2-ARE activity.",
+			"context": {},
+			"citations": [],
+			"notes": "Stress context may increase reliance on NRF2; directionality is conceptual."
+		},
+		{
+			"subject": "metabolite:fumarate",
+			"predicate": "inhibits_activity_of",
+			"object": "process:akg_dioxygenase_inhibition",
+			"weight": 0.75,
+			"evidence_level": "review_or_consensus",
+			"polarity": "-",
+			"mechanism": "competitive inhibition of αKG-dependent dioxygenases by fumarate",
+			"context": {},
+			"citations": [],
+			"notes": null
+		},
+		{
+			"subject": "process:akg_dioxygenase_inhibition",
+			"predicate": "causes",
+			"object": "process:PHD_inhibition",
+			"weight": 0.70,
+			"evidence_level": "review_or_consensus",
+			"polarity": null,
+			"mechanism": "PHDs are a subset of αKG-dependent dioxygenases",
+			"context": {},
+			"citations": [],
+			"notes": null
+		},
+		{
+			"subject": "process:PHD_inhibition",
+			"predicate": "causes",
+			"object": "state:HIF_stabilization",
+			"weight": 0.80,
+			"evidence_level": "review_or_consensus",
+			"polarity": null,
+			"mechanism": "reduced hydroxylation reduces HIFα degradation",
+			"context": {},
+			"citations": [],
+			"notes": null
+		},
+		{
+			"subject": "state:HIF_stabilization",
+			"predicate": "causes",
+			"object": "state:pseudohypoxia",
+			"weight": 0.75,
+			"evidence_level": "review_or_consensus",
+			"polarity": null,
+			"mechanism": "stabilized HIF activates hypoxia-response transcription in normoxia",
+			"context": {},
+			"citations": [],
+			"notes": null
+		},
+		{
+			"subject": "process:akg_dioxygenase_inhibition",
+			"predicate": "causes",
+			"object": "process:TET_KDM_inhibition",
+			"weight": 0.65,
+			"evidence_level": "review_or_consensus",
+			"polarity": null,
+			"mechanism": "TET/KDM enzymes are αKG-dependent dioxygenases inhibited by fumarate",
+			"context": {},
+			"citations": [],
+			"notes": null
+		},
+		{
+			"subject": "process:TET_KDM_inhibition",
+			"predicate": "causes",
+			"object": "process:DNA_hypermethylation",
+			"weight": 0.70,
+			"evidence_level": "patient_omics",
+			"polarity": null,
+			"mechanism": "impaired demethylation shifts epigenome toward hypermethylation",
+			"context": {},
+			"citations": [],
+			"notes": null
+		},
+		{
+			"subject": "process:DNA_hypermethylation",
+			"predicate": "causes",
+			"object": "phenotype:CIMP",
+			"weight": 0.70,
+			"evidence_level": "patient_omics",
+			"polarity": null,
+			"mechanism": "global hypermethylation manifests as CpG island methylator phenotype",
+			"context": {},
+			"citations": [],
+			"notes": null
+		},
+		{
+			"subject": "metabolite:fumarate",
+			"predicate": "causes",
+			"object": "state:oxidative_stress",
+			"weight": 0.55,
+			"evidence_level": "review_or_consensus",
+			"polarity": null,
+			"mechanism": "redox imbalance and succination-associated stress under FH loss",
+			"context": {},
+			"citations": [],
+			"notes": "Simplified: ROS/oxidative stress is context-dependent and may vary by model."
+		},
+		{
+			"subject": "state:oxidative_stress",
+			"predicate": "causes",
+			"object": "process:mitochondrial_damage",
+			"weight": 0.45,
+			"evidence_level": "hypothesis",
+			"polarity": null,
+			"mechanism": "ROS can damage mitochondrial membranes and genomes",
+			"context": {},
+			"citations": [],
+			"notes": "Mechanistic direction is plausible but not asserted as universal."
+		},
+		{
+			"subject": "process:mitochondrial_damage",
+			"predicate": "enables",
+			"object": "process:mtDNA_leakage",
+			"weight": 0.45,
+			"evidence_level": "hypothesis",
+			"polarity": null,
+			"mechanism": "mitochondrial stress can lead to mtDNA release into cytosol",
+			"context": {},
+			"citations": [],
+			"notes": null
+		},
+		{
+			"subject": "process:mtDNA_leakage",
+			"predicate": "activates",
+			"object": "pathway:cGAS_STING",
+			"weight": 0.55,
+			"evidence_level": "review_or_consensus",
+			"polarity": "+",
+			"mechanism": "cytosolic DNA engages innate immune sensing",
+			"context": {},
+			"citations": [],
+			"notes": null
+		},
+		{
+			"subject": "pathway:cGAS_STING",
+			"predicate": "causes",
+			"object": "process:chronic_interferon_signaling",
+			"weight": 0.50,
+			"evidence_level": "hypothesis",
+			"polarity": null,
+			"mechanism": "persistent sensing may drive sustained interferon response",
+			"context": {},
+			"citations": [],
+			"notes": "Chronicity is context-dependent; encoded as uncertain."
+		},
+		{
+			"subject": "process:chronic_interferon_signaling",
+			"predicate": "enables",
+			"object": "phenotype:immunosuppressive_TME",
+			"weight": 0.45,
+			"evidence_level": "hypothesis",
+			"polarity": null,
+			"mechanism": "chronic inflammation can contribute to immune dysfunction/exhaustion",
+			"context": {},
+			"citations": [],
+			"notes": "Directionality reflects a conceptual model; not a clinical claim."
+		},
+		{
+			"subject": "pathway:NRF2_ARE",
+			"predicate": "activates",
+			"object": "process:antioxidant_defense",
+			"weight": 0.70,
+			"evidence_level": "review_or_consensus",
+			"polarity": "+",
+			"mechanism": "NRF2 transcriptional program increases antioxidant capacity",
+			"context": {},
+			"citations": [],
+			"notes": null
+		},
+		{
+			"subject": "process:antioxidant_defense",
+			"predicate": "decreases",
+			"object": "state:oxidative_stress",
+			"weight": 0.50,
+			"evidence_level": "review_or_consensus",
+			"polarity": "-",
+			"mechanism": "antioxidant programs reduce ROS burden",
+			"context": {},
+			"citations": [],
+			"notes": "Negative feedback; simplifies dose/timing."
+		},
+		{
+			"subject": "state:pseudohypoxia",
+			"predicate": "causes",
+			"object": "process:angiogenesis_program",
+			"weight": 0.65,
+			"evidence_level": "review_or_consensus",
+			"polarity": null,
+			"mechanism": "HIF activation induces angiogenic factors such as VEGF",
+			"context": {},
+			"citations": [],
+			"notes": null
+		},
+		{
+			"subject": "process:angiogenesis_program",
+			"predicate": "causes",
+			"object": "phenotype:tumor_vascularity",
+			"weight": 0.60,
+			"evidence_level": "review_or_consensus",
+			"polarity": null,
+			"mechanism": "angiogenic signaling increases tumor vascularity",
+			"context": {},
+			"citations": [],
+			"notes": null
+		},
+		{
+			"subject": "phenotype:tumor_vascularity",
+			"predicate": "enables",
+			"object": "phenotype:immunosuppressive_TME",
+			"weight": 0.35,
+			"evidence_level": "hypothesis",
+			"polarity": null,
+			"mechanism": "aberrant vasculature can contribute to immune dysfunction and exclusion",
+			"context": {},
+			"citations": [],
+			"notes": "Simplified: vascularity→immune suppression is context-dependent."
+		},
+		{
+			"subject": "phenotype:CIMP",
+			"predicate": "enables",
+			"object": "process:antigen_presentation_down",
+			"weight": 0.40,
+			"evidence_level": "hypothesis",
+			"polarity": null,
+			"mechanism": "epigenetic silencing may reduce antigen presentation machinery (simplified)",
+			"context": {},
+			"citations": [],
+			"notes": "Placeholder mechanism; revise when adding specific genes/processes."
+		},
+		{
+			"subject": "process:antigen_presentation_down",
+			"predicate": "causes",
+			"object": "process:immune_evasion_program",
+			"weight": 0.45,
+			"evidence_level": "hypothesis",
+			"polarity": null,
+			"mechanism": "reduced antigen presentation facilitates immune evasion",
+			"context": {},
+			"citations": [],
+			"notes": null
+		},
+		{
+			"subject": "process:immune_evasion_program",
+			"predicate": "enables",
+			"object": "phenotype:immunosuppressive_TME",
+			"weight": 0.45,
+			"evidence_level": "hypothesis",
+			"polarity": null,
+			"mechanism": "immune evasion contributes to immunosuppressive microenvironment",
+			"context": {},
+			"citations": [],
+			"notes": null
+		},
+		{
+			"subject": "phenotype:immunosuppressive_TME",
+			"predicate": "enables",
+			"object": "phenotype:cancer",
+			"weight": 0.35,
+			"evidence_level": "hypothesis",
+			"polarity": null,
+			"mechanism": "immune suppression may permit tumor outgrowth and progression",
+			"context": {},
+			"citations": [],
+			"notes": "Facilitator edge; not a deterministic claim."
+		},
+		{
+			"subject": "phenotype:CIMP",
+			"predicate": "enables",
+			"object": "phenotype:cancer",
+			"weight": 0.40,
+			"evidence_level": "hypothesis",
+			"polarity": null,
+			"mechanism": "epigenetic reprogramming may increase evolutionary plasticity / malignant potential",
+			"context": {},
+			"citations": [],
+			"notes": "Encodes 'necessary vs sufficient' uncertainty."
+		},
+		{
+			"subject": "state:pseudohypoxia",
+			"predicate": "enables",
+			"object": "phenotype:cancer",
+			"weight": 0.35,
+			"evidence_level": "hypothesis",
+			"polarity": null,
+			"mechanism": "pseudohypoxia supports survival, angiogenesis, and growth programs",
+			"context": {},
+			"citations": [],
+			"notes": "Facilitator edge."
+		},
+		{
+			"subject": "pathway:NRF2_ARE",
+			"predicate": "enables",
+			"object": "phenotype:cancer",
+			"weight": 0.30,
+			"evidence_level": "hypothesis",
+			"polarity": null,
+			"mechanism": "antioxidant adaptation can enable survival under metabolic stress",
+			"context": {},
+			"citations": [],
+			"notes": "Not claiming NRF2 is an oncogene here; survival-enabling framing."
+		},
+		{
+			"subject": "phenotype:CIMP",
+			"predicate": "enables",
+			"object": "process:genomic_instability",
+			"weight": 0.30,
+			"evidence_level": "hypothesis",
+			"polarity": null,
+			"mechanism": "epigenetic silencing of repair programs may increase instability (placeholder)",
+			"context": {},
+			"citations": [],
+			"notes": "Placeholder until specific repair processes/genes are encoded."
+		},
+		{
+			"subject": "process:genomic_instability",
+			"predicate": "enables",
+			"object": "phenotype:cancer",
+			"weight": 0.40,
+			"evidence_level": "hypothesis",
+			"polarity": null,
+			"mechanism": "genomic instability can accelerate acquisition of malignant capabilities",
+			"context": {},
+			"citations": [],
+			"notes": "Facilitator edge."
+		},
+		{
+			"subject": "gene:NF2",
+			"predicate": "inhibits",
+			"object": "pathway:Hippo",
+			"weight": 0.30,
+			"evidence_level": "hypothesis",
+			"polarity": "-",
+			"mechanism": "placeholder: NF2 loss can dysregulate Hippo/YAP/TAZ signaling (direction simplified)",
+			"context": {},
+			"citations": [],
+			"notes": "This edge is intentionally uncertain; revise with explicit YAP/TAZ nodes later."
+		},
+		{
+			"subject": "pathway:Hippo",
+			"predicate": "enables",
+			"object": "process:proliferation_survival_program",
+			"weight": 0.35,
+			"evidence_level": "hypothesis",
+			"polarity": null,
+			"mechanism": "Hippo dysregulation may promote growth/survival outputs",
+			"context": {},
+			"citations": [],
+			"notes": "Placeholder; clarify directionality when adding YAP/TAZ."
+		},
+		{
+			"subject": "pathway:RTK_signaling",
+			"predicate": "activates",
+			"object": "pathway:PI3K_AKT_mTOR",
+			"weight": 0.55,
+			"evidence_level": "review_or_consensus",
+			"polarity": "+",
+			"mechanism": "RTKs can activate PI3K/AKT/mTOR signaling",
+			"context": {},
+			"citations": [],
+			"notes": null
+		},
+		{
+			"subject": "pathway:PI3K_AKT_mTOR",
+			"predicate": "enables",
+			"object": "process:proliferation_survival_program",
+			"weight": 0.45,
+			"evidence_level": "hypothesis",
+			"polarity": null,
+			"mechanism": "growth/survival signaling supports proliferation under stress",
+			"context": {},
+			"citations": [],
+			"notes": "Generic; not asserting universal activation in FHRCC."
+		},
+		{
+			"subject": "process:proliferation_survival_program",
+			"predicate": "enables",
+			"object": "phenotype:cancer",
+			"weight": 0.45,
+			"evidence_level": "hypothesis",
+			"polarity": null,
+			"mechanism": "proliferation/survival outputs facilitate malignant progression",
+			"context": {},
+			"citations": [],
+			"notes": "Facilitator edge."
+		},
+		{
+			"subject": "phenotype:CIMP",
+			"predicate": "enables",
+			"object": "pathway:RTK_signaling",
+			"weight": 0.20,
+			"evidence_level": "hypothesis",
+			"polarity": null,
+			"mechanism": "placeholder: epigenetic rewiring may indirectly enable growth signaling programs",
+			"context": {},
+			"citations": [],
+			"notes": "Weak/placeholder; revise once specific RTKs (e.g., MET) are added."
+		},
+		{
+			"subject": "state:pseudohypoxia",
+			"predicate": "enables",
+			"object": "process:growth_factor_signaling_context",
+			"weight": 0.35,
+			"evidence_level": "hypothesis",
+			"polarity": null,
+			"mechanism": "hypoxia-like programs can reshape growth factor and stromal signaling context",
+			"context": {},
+			"citations": [],
+			"notes": "Placeholder bridge; revise with specific factors if desired."
+		},
+		{
+			"subject": "process:growth_factor_signaling_context",
+			"predicate": "activates",
+			"object": "pathway:RTK_signaling",
+			"weight": 0.40,
+			"evidence_level": "hypothesis",
+			"polarity": "+",
+			"mechanism": "pro-growth context can increase RTK pathway activity",
+			"context": {},
+			"citations": [],
+			"notes": "Non-specific by design."
+		},
+		{
+			"subject": "pathway:PI3K_AKT_mTOR",
+			"predicate": "activates",
+			"object": "process:proliferation_survival_program",
+			"weight": 0.45,
+			"evidence_level": "hypothesis",
+			"polarity": "+",
+			"mechanism": "growth signaling activates downstream proliferation/survival outputs",
+			"context": {},
+			"citations": [],
+			"notes": "Switches from enables→activates to reduce predicate penalty but remains hypothesis."
+		}
+	],
+	"schema_version": "0.1.0"
+}

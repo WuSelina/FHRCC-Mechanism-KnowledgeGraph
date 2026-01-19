@@ -1,0 +1,171 @@
+{
+    "nodes": [
+        {
+            "id": "gene:FH",
+            "type": "gene",
+            "name": "FH",
+            "synonyms": [],
+            "description": null,
+            "xrefs": {
+                "HGNC": "FH"
+            },
+            "tags": []
+        },
+        {
+            "id": "metabolite:fumarate",
+            "type": "metabolite",
+            "name": "Fumarate",
+            "synonyms": [],
+            "description": null,
+            "xrefs": {},
+            "tags": []
+        },
+        {
+            "id": "process:tca_cycle_blockade",
+            "type": "process",
+            "name": "TCA cycle blockade",
+            "synonyms": [],
+            "description": null,
+            "xrefs": {},
+            "tags": []
+        },
+        {
+            "id": "process:protein_succination",
+            "type": "process",
+            "name": "Protein succination",
+            "synonyms": [],
+            "description": null,
+            "xrefs": {},
+            "tags": []
+        },
+        {
+            "id": "protein:KEAP1",
+            "type": "protein",
+            "name": "KEAP1",
+            "synonyms": [],
+            "description": null,
+            "xrefs": {
+                "HGNC": "KEAP1"
+            },
+            "tags": []
+        },
+        {
+            "id": "protein:NRF2",
+            "type": "protein",
+            "name": "NRF2",
+            "synonyms": [
+                "NFE2L2"
+            ],
+            "description": null,
+            "xrefs": {
+                "HGNC": "NFE2L2"
+            },
+            "tags": []
+        },
+        {
+            "id": "pathway:NRF2_ARE",
+            "type": "pathway",
+            "name": "NRF2-ARE antioxidant response",
+            "synonyms": [],
+            "description": null,
+            "xrefs": {},
+            "tags": []
+        },
+        {
+            "id": "state:oxidative_stress",
+            "type": "state",
+            "name": "Oxidative stress",
+            "synonyms": [],
+            "description": null,
+            "xrefs": {},
+            "tags": []
+        }
+    ],
+    "edges": [
+        {
+            "subject": "gene:FH",
+            "predicate": "causes",
+            "object": "process:tca_cycle_blockade",
+            "weight": 0.9,
+            "evidence_level": "review_or_consensus",
+            "polarity": null,
+            "mechanism": "loss of fumarate hydratase activity blocks fumarate\u2192malate",
+            "context": {},
+            "citations": [],
+            "notes": null
+        },
+        {
+            "subject": "process:tca_cycle_blockade",
+            "predicate": "causes",
+            "object": "metabolite:fumarate",
+            "weight": 0.9,
+            "evidence_level": "review_or_consensus",
+            "polarity": null,
+            "mechanism": "fumarate accumulates upstream of FH blockade",
+            "context": {},
+            "citations": [],
+            "notes": null
+        },
+        {
+            "subject": "metabolite:fumarate",
+            "predicate": "modifies",
+            "object": "process:protein_succination",
+            "weight": 0.85,
+            "evidence_level": "biochemical_direct",
+            "polarity": null,
+            "mechanism": "succination of cysteine residues (2SC adducts)",
+            "context": {},
+            "citations": [],
+            "notes": null
+        },
+        {
+            "subject": "process:protein_succination",
+            "predicate": "inhibits",
+            "object": "protein:KEAP1",
+            "weight": 0.7,
+            "evidence_level": "cell_model",
+            "polarity": null,
+            "mechanism": "KEAP1 succination impairs NRF2 degradation",
+            "context": {},
+            "citations": [],
+            "notes": null
+        },
+        {
+            "subject": "protein:KEAP1",
+            "predicate": "inhibits",
+            "object": "protein:NRF2",
+            "weight": 0.8,
+            "evidence_level": "review_or_consensus",
+            "polarity": "-",
+            "mechanism": "KEAP1 targets NRF2 for degradation (baseline regulation)",
+            "context": {},
+            "citations": [],
+            "notes": null
+        },
+        {
+            "subject": "protein:NRF2",
+            "predicate": "activates",
+            "object": "pathway:NRF2_ARE",
+            "weight": 0.85,
+            "evidence_level": "review_or_consensus",
+            "polarity": null,
+            "mechanism": "NRF2 transcriptional activation of antioxidant response genes",
+            "context": {},
+            "citations": [],
+            "notes": null
+        },
+        {
+            "subject": "state:oxidative_stress",
+            "predicate": "enables",
+            "object": "pathway:NRF2_ARE",
+            "weight": 0.55,
+            "evidence_level": "hypothesis",
+            "polarity": null,
+            "mechanism": null,
+            "context": {},
+            "citations": [],
+            "notes": "Stress context may increase reliance on NRF2; directionality is conceptual."
+        }
+    ],
+    "schema_version": "0.1.0"
+}
