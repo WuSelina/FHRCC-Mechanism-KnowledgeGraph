@@ -35,6 +35,8 @@ button { cursor:pointer; }
 button:hover, select:hover { border-color: var(--muted); }
 :focus-visible { outline: 2px solid var(--c-molecular); outline-offset: 2px; }
 main { display:grid; grid-template-columns: 1fr 340px; gap:12px; padding: 0 16px 16px; max-width:1400px; margin:0 auto; }
+.cywrap { position: relative; }
+.recenter { position:absolute; top:10px; right:10px; z-index:2; font-size:13px; }
 #cy { height: 82vh; min-height: 620px; background: var(--surface); border:1px solid var(--grid); border-radius:10px; }
 aside { background: var(--surface); border:1px solid var(--grid); border-radius:10px; padding: 14px; max-height: 82vh; min-height:620px; overflow:auto; font-size:13.5px; }
 aside h2 { font-size: 15px; margin: 0 0 6px; }
@@ -79,7 +81,7 @@ footer { max-width:1400px; margin:0 auto; padding: 0 16px 28px; color: var(--mut
 <div class="legend" id="legend" aria-label="Legend"></div>
 
 <main>
-  <div id="cy" role="img" aria-label="Interactive graph of FH-loss mechanisms. A table of all edges follows below."></div>
+  <div class="cywrap"><div id="cy" role="img" aria-label="Interactive graph of FH-loss mechanisms. A table of all edges follows below."></div><button type="button" id="recenter" class="recenter" title="Fit the whole graph in view">Recenter</button></div>
   <aside id="panel" aria-live="polite"></aside>
 </main>
 
@@ -138,12 +140,13 @@ footer { max-width:1400px; margin:0 auto; padding: 0 16px 28px; color: var(--mut
       { selector: 'edge.on', style: { 'line-color': hi, 'target-arrow-color': hi, 'opacity': 1, 'z-index': 20, 'width': 'mapData(weight, 0.2, 0.9, 2.5, 5.5)' } },
       { selector: 'node.on', style: { 'border-width': 3.5, 'opacity': 1 } },
       { selector: 'node:selected', style: { 'overlay-opacity': 0 } },
-      { selector: 'edge.nbr', style: { 'opacity': 0.95, 'z-index': 15 } },
+      { selector: 'edge.nbr', style: { 'opacity': 1, 'z-index': 25, 'line-color': col('molecular'), 'target-arrow-color': col('molecular') } },
       { selector: 'node.nbr', style: { 'opacity': 1 } },
       { selector: 'node.sel', style: { 'opacity': 1, 'border-width': 5, 'underlay-color': hi, 'underlay-opacity': 0.18, 'underlay-padding': 8, 'underlay-shape': 'round-rectangle', 'z-index': 30 } },
       { selector: 'edge.faded', style: { 'display': 'none' } },
     ];
-    for (const g of Object.keys(D.groupLabels)) s.push({ selector: `node[group = "${g}"]`, style: { 'background-color': col(g), 'border-color': col(g) } });
+    for (const g of Object.keys(D.groupLabels)) s.push({ selector: 
+ode[group = "${g}"]`, style: { 'background-color': col(g), 'border-color': col(g) } });
     return s;
   }
 
@@ -226,6 +229,7 @@ footer { max-width:1400px; margin:0 auto; padding: 0 16px 28px; color: var(--mut
   tsel.onchange = () => { fillRanks(); showPath(); };
   rsel.onchange = showPath;
   $('fade').onchange = () => { applyFade(); };
+  $('recenter').onclick = () => { if (cy) cy.fit(undefined, 30); };
   $('reset').onclick = () => { if (cy) cy.fit(undefined, 30); tsel.value = D.defaultTarget; fillRanks(); showPath(); };
 
   const mq = window.matchMedia('(prefers-color-scheme: dark)');

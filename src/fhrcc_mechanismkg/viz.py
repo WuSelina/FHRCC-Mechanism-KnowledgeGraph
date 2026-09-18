@@ -249,8 +249,25 @@ def draw_overview(
     fig.subplots_adjust(left = 0, right = 1, top = 0.945, bottom = 0.075)
     _save(fig, out_path)
 
-def _short(graph: Graph, node_id: str, width: int = 34) -> str:
-    return textwrap.shorten(graph.nodes[node_id].name, width = width, placeholder = "…")
+# Chart labels use standard abbreviations (full names appear in the graph overview) so nothing is truncated
+SHORT_NAMES: Dict[str, str] = {
+    "process:akg_dioxygenase_inhibition": "αKGDD inhibition",
+    "process:PHD_inhibition": "PHD inhibition",
+    "process:TET_KDM_inhibition": "TET/KDM inhibition",
+    "process:DNA_hypermethylation": "DNA hypermethylation",
+    "phenotype:CIMP": "CIMP",
+    "process:genomic_instability": "Genomic instability",
+    "phenotype:immunosuppressive_TME": "Immunosuppressive TME",
+    "pathway:NRF2_ARE": "NRF2-ARE response",
+    "process:mtDNA_leakage": "mtDNA leakage",
+    "pathway:cGAS_STING": "cGAS-STING sensing",
+    "pathway:RTK_signaling": "RTK signaling",
+    "pathway:PI3K_AKT_mTOR": "PI3K-AKT-mTOR",
+}
+
+
+def _short(graph: Graph, node_id: str, width: int = 0) -> str:
+    return SHORT_NAMES.get(node_id, graph.nodes[node_id].name)
 
 
 def _clean_axes(ax) -> None:
@@ -372,7 +389,7 @@ def draw_evidence_audit(graph: Graph, best: PathResult, out_path: str, source_na
     for y, s in zip(ypos2, steps):
         a2.text(s.edge.weight + 0.015, y, f"{s.edge.weight:.2f}", va = "center", fontsize = LABEL_PT, color = INK2)
     a2.set_yticks(ypos2)
-    a2.set_yticklabels([graph.nodes[s.edge.object].name for s in steps])
+    a2.set_yticklabels([_short(graph, s.edge.object) for s in steps])
     a2.set_xlim(0, 1.0)
     a2.set_xlabel("Edge Confidence (Weight)", labelpad = 8)
     a2.set_ylabel("Path Step (Edge Into Node)", labelpad = 8)
@@ -390,6 +407,8 @@ def _save(fig, out_path: str) -> None:
     import matplotlib.pyplot as plt
 
     plt.close(fig)
+
+
 
 
 
