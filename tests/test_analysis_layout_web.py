@@ -1,4 +1,4 @@
-import pytest
+﻿import pytest
 from fhrcc_mechanismkg import web
 from fhrcc_mechanismkg.analysis import convergence, evidence_counts, path_summary, reachable
 from fhrcc_mechanismkg.graph import Graph
@@ -86,10 +86,12 @@ def test_edge_routing_bends_around_boxes_in_the_way():
 
     xy = {"a": (0.0, 0.0), "blocker": (0.0, -1.0), "b": (0.0, -2.0), "free": (5.0, -1.0)}
     bounds = (-4.0, 9.0)
-    assert viz._route_rad("a", "b", xy, 0.0, 0.5, 0.7, bounds) != 0.0
-    assert viz._route_rad("a", "free", xy, 0.1, 0.5, 0.7, bounds) == 0.1  # nothing in the way, keep default
+    narrow = {k: (0.5, 0.7) for k in xy}
+    assert viz._route_rad("a", "b", xy, 0.0, narrow, bounds) != 0.0
+    assert viz._route_rad("a", "free", xy, 0.1, narrow, bounds) == 0.1  # nothing in the way, keep default
     wide = {"a": (0.0, 0.0), "blocker": (0.0, -1.0), "b": (0.0, -2.0)}
-    assert viz._route_rad("a", "b", wide, 0.0, 30.0, 0.7, bounds) == 0.0  # no clean route, keep default
+    huge = {k: (30.0, 0.7) for k in wide}
+    assert viz._route_rad("a", "b", wide, 0.0, huge, bounds) == 0.0  # no clean route, keep default
 
 
 def test_static_figures_render(full_graph, tmp_path):
@@ -101,3 +103,4 @@ def test_static_figures_render(full_graph, tmp_path):
     viz.draw_path_comparison(full_graph, paths, str(tmp_path / "p.png"), "FH", "Cancer")
     viz.draw_evidence_audit(full_graph, paths[0], str(tmp_path / "e.png"), "FH", "Cancer")
     assert all((tmp_path / f).stat().st_size > 10_000 for f in ("o.png", "p.png", "e.png"))
+

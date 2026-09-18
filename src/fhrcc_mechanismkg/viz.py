@@ -86,8 +86,7 @@ def _route_rad(
     dst: str,
     xy: Dict[str, Tuple[float, float]],
     default: float,
-    bw: float,
-    bh: float,
+    sizes: Dict[str, Tuple[float, float]],
     x_bounds: Tuple[float, float],
     margin: float = 0.03,
 ) -> float:
@@ -102,7 +101,8 @@ def _route_rad(
             for nid, (nx, ny) in xy.items():
                 if nid in (src, dst):
                     continue
-                if abs(px - nx) < bw / 2 + margin and abs(py - ny) < bh / 2 + margin:
+                w, h = sizes[nid]
+                if abs(px - nx) < w / 2 + margin and abs(py - ny) < h / 2 + margin:
                     hits += 1
         return hits
 
@@ -113,6 +113,22 @@ def _route_rad(
             if cost(rad) == 0:
                 return rad
     return default  # no clean route exists; a half-clearing detour only adds clutter
+
+
+def _node_sizes(graph: Graph, labels: Dict[str, str]) -> Dict[str, Tuple[float, float]]:
+    """Box (width, height) in inches for each node, fitted to its wrapped label."""
+    import matplotlib.pyplot as plt
+
+    mfig = plt.figure(dpi = 100)
+    renderer = mfig.canvas.get_renderer()
+    sizes: Dict[str, Tuple[float, float]] = {}
+    for nid in graph.nodes:
+        t = mfig.text(0, 0, labels[nid], fontsize = NODE_PT, linespacing = 1.15)
+        bb = t.get_window_extent(renderer)
+        sizes[nid] = (max(bb.width / 100 + 0.36, 1.1), max(bb.height / 100 + 0.28, 0.52))
+        t.remove()
+    plt.close(mfig)
+    return sizes
 
 
 def _panel_header(ax, title: str, subtitle: str) -> None:
@@ -132,23 +148,40 @@ def draw_overview(
     from matplotlib.patches import FancyArrowPatch, FancyBboxPatch, Patch
 
     pos = layered_layout(graph, spine = highlight.node_ids() if highlight else None)
-    sx, sy, bw, bh = 2.85, 1.2, 2.5, 0.82
+    labels = {nid: textwrap.fill(n.name, 22) for nid, n in graph.nodes.items()}
+    sizes = _node_sizes(graph, labels)
+    max_w = max(w for w, _ in sizes.values())
+    max_h = max(h for _, h in sizes.values())
+    # Grid spacing is the tightest that still leaves a gap between every pair of neighbors
+    by_layer: Dict[float, List[str]] = {}
+    for nid, (px, py) in pos.items():
+        by_layer.setdefault(py, []).append(nid)
+    need_x = [
+        ((sizes[a][0] + sizes[b][0]) / 2 + 0.3) / (pos[b][0] - pos[a][0])
+        for row in by_layer.values()
+        for a, b in zip(sorted(row, key = lambda n: pos[n][0]), sorted(row, key = lambda n: pos[n][0])[1:])
+    ]
+    tallest = {py: max(sizes[n][1] for n in row) for py, row in by_layer.items()}
+    layers_sorted = sorted(tallest)
+    need_y = [(tallest[a] + tallest[b]) / 2 + 0.3 for a, b in zip(layers_sorted, layers_sorted[1:])]
+    sx, sy = max(need_x + [1.0]), max(need_y + [0.8])
     xy = {n: (p[0] * sx, -p[1] * sy) for n, p in pos.items()}
     xs = [p[0] for p in xy.values()]
     ys = [p[1] for p in xy.values()]
-    width = max(xs) - min(xs) + bw + 1.0
-    height = (max(ys) - min(ys) + bh + 0.9) / 0.87  # axes occupy 87% of the figure height
+    width = max(xs) - min(xs) + max_w + 1.0
+    height = (max(ys) - min(ys) + max_h + 0.9) / 0.87  # axes occupy 87% of the figure height
 
     fig, ax = plt.subplots(figsize = (width, height))
-    x_bounds = (min(xs) - bw / 2 - 0.5, max(xs) + bw / 2 + 0.5)
+    x_bounds = (min(xs) - max_w / 2 - 0.5, max(xs) + max_w / 2 + 0.5)
     ax.set_xlim(*x_bounds)
-    ax.set_ylim(min(ys) - bh / 2 - 0.25, max(ys) + bh / 2 + 0.25)
+    ax.set_ylim(min(ys) - max_h / 2 - 0.25, max(ys) + max_h / 2 + 0.25)
     ax.set_aspect("equal")
     ax.axis("off")
 
     patches: Dict[str, FancyBboxPatch] = {}
     for n in graph.nodes.values():
         x, y = xy[n.id]
+        bw, bh = sizes[n.id]
         color = GROUP_COLOR[NODE_GROUPS.get(n.type, "mechanism")]
         root = "root_event" in n.tags
         p = FancyBboxPatch(
@@ -163,15 +196,14 @@ def draw_overview(
         )
         ax.add_patch(p)
         patches[n.id] = p
-        label = textwrap.fill(n.name, 22)
-        ax.text(x, y, label, ha = "center", va = "center", fontsize = NODE_PT, color = INK, zorder = 4, linespacing = 1.15)
+        ax.text(x, y, labels[n.id], ha = "center", va = "center", fontsize = NODE_PT, color = INK, zorder = 4, linespacing = 1.15)
 
     on_path: Set[Tuple[str, str, str]] = {_edge_id(s.edge) for s in highlight.steps} if highlight else set()
     for e in sorted(graph.edges, key = lambda e: _edge_id(e) in on_path):
         (x1, y1), (x2, y2) = xy[e.subject], xy[e.object]
         span = abs(pos[e.object][1] - pos[e.subject][1])
         default = 0.0 if span <= 1 and abs(x2 - x1) < 0.1 else (0.10 if x2 >= x1 else -0.10) * min(span, 3)
-        rad = _route_rad(e.subject, e.object, xy, default, bw, bh, x_bounds)
+        rad = _route_rad(e.subject, e.object, xy, default, sizes, x_bounds)
         hi = _edge_id(e) in on_path
         color = INK if hi else MUTED
         arrow = FancyArrowPatch(
@@ -216,7 +248,6 @@ def draw_overview(
     fig.text(0.5, 0.06, "Line width = edge confidence", ha = "center", fontsize = OVERVIEW_LEGEND_PT, color = INK2)
     fig.subplots_adjust(left = 0, right = 1, top = 0.945, bottom = 0.075)
     _save(fig, out_path)
-
 
 def _short(graph: Graph, node_id: str, width: int = 34) -> str:
     return textwrap.shorten(graph.nodes[node_id].name, width = width, placeholder = "…")
@@ -325,13 +356,13 @@ def draw_evidence_audit(graph: Graph, best: PathResult, out_path: str, source_na
     ypos = list(range(len(levels)))
     a1.barh(ypos, vals, height = 0.5, color = [ORANGE if l == "hypothesis" else BLUE for l in levels], edgecolor = SURFACE, lw = 1.5)
     for y, v in zip(ypos, vals):
-        a1.text(v + 0.3, y, str(v), va = "center", fontsize = LABEL_PT, color = INK2)
+        a1.text(v + 0.3, y, f"{v} ({v / len(graph.edges):.0%})", va = "center", fontsize = LABEL_PT, color = INK2)
     a1.set_yticks(ypos)
     a1.set_yticklabels([l.replace("_", " ") for l in levels])
     a1.set_xlim(0, 25)
     a1.set_xlabel("Number of Edges", labelpad = 8)
     sub = f"No edges rest on {_join_or(absent)} evidence" if absent else "Evidence level of every edge"
-    _panel_header(a1, f'{counts["hypothesis"]} of {len(graph.edges)} Edges Are Hypotheses', sub)
+    _panel_header(a1, "Edges by Evidence Level", sub)
     _clean_axes(a1)
 
     # Right: one bar per step along the path, first step at the top, labeled by the node it leads into
@@ -341,7 +372,7 @@ def draw_evidence_audit(graph: Graph, best: PathResult, out_path: str, source_na
     for y, s in zip(ypos2, steps):
         a2.text(s.edge.weight + 0.015, y, f"{s.edge.weight:.2f}", va = "center", fontsize = LABEL_PT, color = INK2)
     a2.set_yticks(ypos2)
-    a2.set_yticklabels([f"{i}. {graph.nodes[s.edge.object].name}" for i, s in enumerate(steps, 1)])
+    a2.set_yticklabels([graph.nodes[s.edge.object].name for s in steps])
     a2.set_xlim(0, 1.0)
     a2.set_xlabel("Edge Confidence (Weight)", labelpad = 8)
     a2.set_ylabel("Path Step (Edge Into Node)", labelpad = 8)
@@ -359,6 +390,9 @@ def _save(fig, out_path: str) -> None:
     import matplotlib.pyplot as plt
 
     plt.close(fig)
+
+
+
 
 
 

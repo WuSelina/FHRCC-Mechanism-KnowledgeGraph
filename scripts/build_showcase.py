@@ -1,4 +1,4 @@
-"""Regenerate every showcase artifact from data/fhrcc_pathway_v1.json.
+﻿"""Regenerate every showcase artifact from data/fhrcc_pathway_v1.json.
 
     python scripts/build_showcase.py
 
@@ -71,7 +71,7 @@ def main() -> None:
             g,
             "docs/figures/graph_overview.png",
             highlight = best,
-            title = "FH-deficient RCC mechanism knowledge graph",
+            title = "FH-Deficient RCC Mechanism Knowledge Graph",
             subtitle = f"{len(g.nodes)} entities, {len(g.edges)} causal claims. {n_hyp} claims are hypothesis-level, including all {len(into)} edges into '{tgt_name}'.",
         )
         viz.draw_path_comparison(g, paths, "docs/figures/path_comparison.png", src_name, tgt_name)
@@ -85,3 +85,4 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
