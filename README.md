@@ -119,3 +119,4 @@ This KG supports a `citations` field on edges, but v1 does not attempt to system
     - Graph database/model: https://neo4j.com/developer/graph-database/
 - Development
     - ChatGPT (GPT-5 to GPT-5.2): back & forth brainstorming design, code drafting, documentation
+    - AI assistants helped with figure scripting; the biological model, data and interpretation are my own.

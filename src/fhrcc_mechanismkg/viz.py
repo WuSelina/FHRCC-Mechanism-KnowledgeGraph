@@ -23,6 +23,11 @@ SURFACE, INK, INK2, MUTED, GRID, LINE = "#fcfcfb", "#0b0b0b", "#52514e", "#89878
 GROUP_COLOR = {"molecular": BLUE, "mechanism": AQUA, "phenotype": ORANGE}
 FONT = ["Segoe UI", "DejaVu Sans", "Arial"]
 
+# Type scale for panel headers: subheader is two sizes (pt) below the title, y labels four below
+TITLE_PT = 12.5
+SUBTITLE_PT = TITLE_PT - 2
+YLABEL_MIN_PT = TITLE_PT - 4  # y labels never go below this; larger existing sizes are kept
+
 
 def _mpl():
     import matplotlib
@@ -230,12 +235,12 @@ def draw_evidence_audit(graph: Graph, best: PathResult, out_path: str, source_na
     for y, v in zip(ypos, vals):
         a1.text(v + 0.3, y, str(v) if v else "0 (none yet)", va = "center", fontsize = 9, color = INK2 if v else MUTED)
     a1.set_yticks(ypos)
-    a1.set_yticklabels([l.replace("_", " ") for l in levels], fontsize = 9.5)
-    a1.set_xlim(0, max(vals) * 1.25)
+    a1.set_yticklabels([l.replace("_", " ") for l in levels], fontsize = max(9.5, YLABEL_MIN_PT))
+    a1.set_xlim(0, 25)
     a1.set_xlabel("Number of edges", fontsize = 9.5)
     n_hyp = counts["hypothesis"]
-    a1.set_title(f"Where the evidence stands: {n_hyp} of {len(graph.edges)} edges are hypotheses", loc = "left", fontsize = 12.5, fontweight = "bold", pad = 26)
-    a1.text(0, 1.03, "Evidence level of every edge, roughly ordered from clinical (top) to hypothesis", transform = a1.transAxes, fontsize = 9.5, color = INK2)
+    a1.set_title(f"{n_hyp} of {len(graph.edges)} Edges Are Hypotheses", loc = "left", fontsize = TITLE_PT, fontweight = "bold", pad = 26)
+    a1.text(0, 1.03, "Evidence level of every edge, roughly ordered from clinical (top) to hypothesis", transform = a1.transAxes, fontsize = SUBTITLE_PT, color = INK2)
     _clean_axes(a1)
 
     steps = best.steps
@@ -247,14 +252,14 @@ def draw_evidence_audit(graph: Graph, best: PathResult, out_path: str, source_na
         a2.text(s.edge.weight + 0.015, y, f"{s.edge.weight:.2f}", va = "center", fontsize = 9, color = INK2)
     lab = [f"{_short(graph, s.edge.subject, 30)} → {_short(graph, s.edge.object, 30)}" for s in steps]
     a2.set_yticks(ypos2)
-    a2.set_yticklabels(lab, fontsize = 8.8)
+    a2.set_yticklabels(lab, fontsize = max(8.8, YLABEL_MIN_PT))
     a2.set_xlim(0, 1.0)
     a2.set_xlabel("Edge confidence (weight)", fontsize = 9.5)
-    a2.set_title("Confidence along the lowest-cost path", loc = "left", fontsize = 12.5, fontweight = "bold", pad = 26)
+    a2.set_title("Confidence Along the Lowest-Cost Path", loc = "left", fontsize = TITLE_PT, fontweight = "bold", pad = 26)
     a2.text(
         0, 1.03,
         "Confident at the metabolic root, hypothesis-level at the final step",
-        transform = a2.transAxes, fontsize = 9.5, color = INK2,
+        transform = a2.transAxes, fontsize = SUBTITLE_PT, color = INK2,
     )
     _clean_axes(a2)
     a2.legend(handles = [Patch(fc = BLUE, label = "Supported"), Patch(fc = ORANGE, label = "Hypothesis")], loc = "lower right", frameon = False, fontsize = 9, labelcolor = INK2)
