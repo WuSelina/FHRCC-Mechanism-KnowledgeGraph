@@ -1,6 +1,5 @@
 from __future__ import annotations
-from dataclasses import asdict
-from typing import Dict, List, Optional
+from typing import List, Optional
 from .graph import Graph
 from .schema import Edge
 from .reasoning.path_search import edge_cost, DEFAULT_PREDICATE_PENALTY, PathResult

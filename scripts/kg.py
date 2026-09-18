@@ -2,7 +2,6 @@ import argparse
 from pathlib import Path
 from fhrcc_mechanismkg.io import graph_from_json
 from fhrcc_mechanismkg.reasoning.path_search import (
-    shortest_path_explainable,
     k_shortest_paths_explainable,
 )
 from fhrcc_mechanismkg.reporting import path_to_text, paths_to_markdown

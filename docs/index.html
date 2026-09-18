@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FHRCC Mechanism Explorer</title>
+<meta name="description" content="Interactive knowledge graph of mechanisms linking FH loss to cancer in fumarate hydratase-deficient renal cell carcinoma.">
+<style>
+:root {
+  --page:#f9f9f7; --surface:#fcfcfb; --ink:#0b0b0b; --ink2:#52514e; --muted:#898781;
+  --grid:#e1e0d9; --line:#c3c2b7; --c-molecular:#2a78d6; --c-mechanism:#1baf7a; --c-phenotype:#eb6834;
+  --hi:#0b0b0b; --tint:.16;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --page:#0d0d0d; --surface:#1a1a19; --ink:#ffffff; --ink2:#c3c2b7; --muted:#898781;
+    --grid:#2c2c2a; --line:#383835; --c-molecular:#3987e5; --c-mechanism:#199e70; --c-phenotype:#d95926;
+    --hi:#ffffff; --tint:.28;
+  }
+}
+:root[data-theme="dark"] {
+  --page:#0d0d0d; --surface:#1a1a19; --ink:#ffffff; --ink2:#c3c2b7; --muted:#898781;
+  --grid:#2c2c2a; --line:#383835; --c-molecular:#3987e5; --c-mechanism:#199e70; --c-phenotype:#d95926;
+  --hi:#ffffff; --tint:.28;
+}
+* { box-sizing: border-box; }
+body { margin:0; background:var(--page); color:var(--ink); font-family: system-ui, -apple-system, "Segoe UI", sans-serif; line-height:1.45; }
+header { padding: 20px 16px 8px; max-width: 1400px; margin: 0 auto; }
+h1 { font-size: 22px; margin: 0 0 4px; }
+header p { margin: 0; color: var(--ink2); max-width: 78ch; font-size: 14px; }
+.controls { display:flex; flex-wrap:wrap; gap:12px 20px; align-items:center; padding: 12px 16px; max-width:1400px; margin:0 auto; font-size:14px; }
+.controls label { color: var(--ink2); display:flex; align-items:center; gap:6px; }
+select, button { font: inherit; color: var(--ink); background: var(--surface); border:1px solid var(--line); border-radius:6px; padding:5px 8px; }
+button { cursor:pointer; }
+button:hover, select:hover { border-color: var(--muted); }
+:focus-visible { outline: 2px solid var(--c-molecular); outline-offset: 2px; }
+main { display:grid; grid-template-columns: 1fr 340px; gap:12px; padding: 0 16px 16px; max-width:1400px; margin:0 auto; }
+#cy { height: 82vh; min-height: 620px; background: var(--surface); border:1px solid var(--grid); border-radius:10px; }
+aside { background: var(--surface); border:1px solid var(--grid); border-radius:10px; padding: 14px; max-height: 82vh; min-height:620px; overflow:auto; font-size:13.5px; }
+aside h2 { font-size: 15px; margin: 0 0 6px; }
+aside h3 { font-size: 12px; text-transform: uppercase; letter-spacing:.04em; color: var(--muted); margin: 16px 0 6px; }
+.muted { color: var(--ink2); }
+.step { border-left: 3px solid var(--line); padding: 2px 0 2px 10px; margin: 0 0 10px; }
+.step.hyp { border-left-color: var(--c-phenotype); }
+.step .pred { color: var(--ink2); font-size: 12.5px; }
+.chip { display:inline-block; font-size:11.5px; padding:0 7px; border-radius:99px; border:1px solid var(--line); color:var(--ink2); margin-left:4px; white-space:nowrap; }
+.chip.hyp { border-color: var(--c-phenotype); color: var(--ink); }
+.callout { border:1px solid var(--grid); border-left: 3px solid var(--c-phenotype); border-radius:6px; padding:8px 10px; margin: 10px 0; background: color-mix(in srgb, var(--c-phenotype) 8%, var(--surface)); }
+.legend { display:flex; flex-wrap:wrap; gap:6px 16px; padding: 0 16px 12px; max-width:1400px; margin:0 auto; font-size:12.5px; color: var(--ink2); }
+.legend span { display:inline-flex; align-items:center; gap:6px; }
+.sw { width:14px; height:14px; border-radius:4px; border:2px solid; }
+.ln { width:26px; height:0; border-top:2px solid var(--muted); }
+.ln.dash { border-top-style: dashed; }
+.ln.hi { border-top-color: var(--hi); border-top-width:3px; }
+.tbar { width:26px; height:0; border-top:2px solid var(--muted); position:relative; }
+.tbar::after { content:""; position:absolute; right:0; top:-6px; height:10px; border-right:2px solid var(--muted); }
+details { max-width:1400px; margin: 0 auto; padding: 0 16px 24px; font-size: 13px; }
+summary { cursor:pointer; color: var(--ink2); }
+table { border-collapse: collapse; width:100%; margin-top:8px; }
+th, td { text-align:left; padding:4px 8px; border-bottom:1px solid var(--grid); }
+th { color: var(--muted); font-weight:600; }
+footer { max-width:1400px; margin:0 auto; padding: 0 16px 28px; color: var(--muted); font-size:12.5px; }
+@media (max-width: 900px) { main { grid-template-columns: 1fr; } aside { max-height:none; } #cy { height: 60vh; } }
+</style>
+</head>
+<body>
+<header>
+  <h1>FH-deficient RCC mechanism explorer</h1>
+  <p>How might loss of fumarate hydratase (FH) lead to cancer? Each box is a biological entity or state; each arrow is a causal claim with a confidence weight and an evidence level. Pick an outcome to see the lowest-cost explanations, or hide hypothesis-level edges to see how much of the map rests on established evidence.</p>
+</header>
+
+<div class="controls">
+  <label>Outcome <select id="target"></select></label>
+  <label>Explanation <select id="rank"></select></label>
+  <label><input type="checkbox" id="fade"> Fade hypothesis-level edges</label>
+  <button id="reset" type="button">Reset view</button>
+</div>
+
+<div class="legend" id="legend" aria-label="Legend"></div>
+
+<main>
+  <div id="cy" role="img" aria-label="Interactive graph of FH-loss mechanisms. A table of all edges follows below."></div>
+  <aside id="panel" aria-live="polite"></aside>
+</main>
+
+<details>
+  <summary>Table view: all edges</summary>
+  <table id="edge-table"><thead><tr><th>From</th><th>Relation</th><th>To</th><th>Evidence</th><th>Weight</th></tr></thead><tbody></tbody></table>
+</details>
+
+<footer>Study tool and exploratory project, not clinical guidance. Paths are possible explanations, not predictions. Source and method: see the repository README.</footer>
+
+<script id="kg-data" type="application/json">{"source": "gene:FH", "nodes": [{"id": "gene:FH", "label": "FH", "name": "FH", "type": "gene", "group": "molecular", "description": "Represents biallelic inactivation of FH (loss of FH function).", "tags": ["loss_of_function", "root_event"], "x": 0.0, "y": 0.0}, {"id": "metabolite:fumarate", "label": "Fumarate", "name": "Fumarate", "type": "metabolite", "group": "molecular", "description": null, "tags": [], "x": 0.0, "y": 156.0}, {"id": "process:tca_cycle_blockade", "label": "TCA cycle blockade", "name": "TCA cycle blockade", "type": "process", "group": "mechanism", "description": null, "tags": [], "x": 0.0, "y": 78.0}, {"id": "process:protein_succination", "label": "Protein succination", "name": "Protein succination", "type": "process", "group": "mechanism", "description": null, "tags": [], "x": -107.5, "y": 234.0}, {"id": "protein:KEAP1", "label": "KEAP1", "name": "KEAP1", "type": "protein", "group": "molecular", "description": null, "tags": [], "x": -322.5, "y": 312.0}, {"id": "protein:NRF2", "label": "NRF2", "name": "NRF2", "type": "protein", "group": "molecular", "description": null, "tags": [], "x": -322.5, "y": 390.0}, {"id": "pathway:NRF2_ARE", "label": "NRF2-ARE antioxidant\nresponse", "name": "NRF2-ARE antioxidant response", "type": "pathway", "group": "mechanism", "description": null, "tags": [], "x": -322.5, "y": 468.0}, {"id": "state:oxidative_stress", "label": "Oxidative stress", "name": "Oxidative stress", "type": "state", "group": "mechanism", "description": null, "tags": [], "x": -107.5, "y": 312.0}, {"id": "process:akg_dioxygenase_inhibition", "label": "αKG-dependent\ndioxygenase\ninhibition", "name": "αKG-dependent dioxygenase inhibition", "type": "process", "group": "mechanism", "description": "Fumarate competitively inhibits αKG-dependent dioxygenases.", "tags": [], "x": 107.5, "y": 234.0}, {"id": "process:PHD_inhibition", "label": "HIF prolyl\nhydroxylase (PHD)\ninhibition", "name": "HIF prolyl hydroxylase (PHD) inhibition", "type": "process", "group": "mechanism", "description": "Inhibition of PHD enzymes that normally hydroxylate HIFα for degradation.", "tags": [], "x": 107.5, "y": 312.0}, {"id": "state:HIF_stabilization", "label": "HIF stabilization", "name": "HIF stabilization", "type": "state", "group": "mechanism", "description": "HIFα is stabilized (impaired degradation) in normoxia due to PHD inhibition.", "tags": [], "x": 107.5, "y": 390.0}, {"id": "state:pseudohypoxia", "label": "Pseudohypoxia", "name": "Pseudohypoxia", "type": "state", "group": "mechanism", "description": "Hypoxia-like transcriptional activity activated despite in normoxia.", "tags": [], "x": 107.5, "y": 468.0}, {"id": "process:TET_KDM_inhibition", "label": "TET/KDM demethylase\ninhibition", "name": "TET/KDM demethylase inhibition", "type": "process", "group": "mechanism", "description": "Inhibition of TET DNA demethylases and Jumonji KDM histone demethylases.", "tags": [], "x": 322.5, "y": 312.0}, {"id": "process:DNA_hypermethylation", "label": "Global DNA\nhypermethylation", "name": "Global DNA hypermethylation", "type": "process", "group": "mechanism", "description": "Genome-wide increase in DNA methylation due to impaired demethylation.", "tags": [], "x": 322.5, "y": 390.0}, {"id": "phenotype:CIMP", "label": "CpG island\nmethylator phenotype\n(CIMP)", "name": "CpG island methylator phenotype (CIMP)", "type": "phenotype", "group": "phenotype", "description": "Hypermethylated epigenome state characteristic of FH/SDH oncometabolite tumors.", "tags": [], "x": 322.5, "y": 468.0}, {"id": "process:mitochondrial_damage", "label": "Mitochondrial damage", "name": "Mitochondrial damage", "type": "process", "group": "mechanism", "description": "Mitochondrial dysfunction/damage associated with FH loss, fumarate, and ROS.", "tags": [], "x": -107.5, "y": 390.0}, {"id": "process:mtDNA_leakage", "label": "Mitochondrial DNA\nleakage to cytosol", "name": "Mitochondrial DNA leakage to cytosol", "type": "process", "group": "mechanism", "description": "Release of mitochondrial DNA into the cytosol under mitochondrial stress.", "tags": [], "x": -107.5, "y": 468.0}, {"id": "pathway:cGAS_STING", "label": "cGAS-STING innate\nimmune sensing", "name": "cGAS-STING innate immune sensing", "type": "pathway", "group": "mechanism", "description": "Cytosolic DNA sensing pathway that can induce interferon signaling.", "tags": [], "x": 0.0, "y": 546.0}, {"id": "process:chronic_interferon_signaling", "label": "Chronic interferon\nsignaling", "name": "Chronic interferon signaling", "type": "process", "group": "mechanism", "description": "Sustained interferon response that may promote immune dysfunction/exhaustion.", "tags": [], "x": 0.0, "y": 624.0}, {"id": "phenotype:immunosuppressive_TME", "label": "Immunosuppressive\ntumor\nmicroenvironment\n(TME)", "name": "Immunosuppressive tumor microenvironment (TME)", "type": "phenotype", "group": "phenotype", "description": "Microenvironment with reduced effective cytotoxic anti-tumor immunity.", "tags": [], "x": 215.0, "y": 702.0}, {"id": "process:antioxidant_defense", "label": "Antioxidant defenses", "name": "Antioxidant defenses", "type": "process", "group": "mechanism", "description": "Cellular antioxidant programs (e.g., glutathione, detox enzymes) downstream of NRF2.", "tags": [], "x": -430.0, "y": 546.0}, {"id": "process:angiogenesis_program", "label": "Angiogenesis program", "name": "Angiogenesis program", "type": "process", "group": "mechanism", "description": "Angiogenic transcriptional program downstream of HIF (e.g., VEGF).", "tags": [], "x": 215.0, "y": 546.0}, {"id": "phenotype:tumor_vascularity", "label": "Tumor vascularity", "name": "Tumor vascularity", "type": "phenotype", "group": "phenotype", "description": "High vascularity tumor phenotype.", "tags": [], "x": 215.0, "y": 624.0}, {"id": "process:immune_evasion_program", "label": "Immune evasion\nprogram", "name": "Immune evasion program", "type": "process", "group": "mechanism", "description": "Composite immune evasion state (simplified placeholder).", "tags": [], "x": 430.0, "y": 624.0}, {"id": "process:antigen_presentation_down", "label": "Reduced antigen\npresentation", "name": "Reduced antigen presentation", "type": "process", "group": "mechanism", "description": "Lowered antigen presentation.", "tags": [], "x": 430.0, "y": 546.0}, {"id": "phenotype:cancer", "label": "Cancer state", "name": "Cancer state", "type": "phenotype", "group": "phenotype", "description": "Probabilistic terminal state representing malignant cancer transformation/progression.", "tags": [], "x": 0.0, "y": 858.0}, {"id": "process:genomic_instability", "label": "Genomic instability\n/ chromosomal\ninstability", "name": "Genomic instability / chromosomal instability", "type": "process", "group": "mechanism", "description": "Genome-wide instability; high fraction genome altered and aneuploidy.", "tags": [], "x": 107.5, "y": 780.0}, {"id": "gene:NF2", "label": "NF2", "name": "NF2", "type": "gene", "group": "molecular", "description": "Tumor suppressor; loss can dysregulate Hippo signaling and growth control.", "tags": ["cooperator"], "x": -430.0, "y": 624.0}, {"id": "pathway:Hippo", "label": "Hippo signaling\npathway", "name": "Hippo signaling pathway", "type": "pathway", "group": "mechanism", "description": "Growth control pathway; dysregulation can promote proliferation/survival.", "tags": ["cooperator"], "x": -215.0, "y": 702.0}, {"id": "pathway:RTK_signaling", "label": "Receptor tyrosine\nkinase (RTK)\nsignaling", "name": "Receptor tyrosine kinase (RTK) signaling", "type": "pathway", "group": "mechanism", "description": "RTK signaling; Includes MET/EGFR/others.", "tags": ["cooperator"], "x": -215.0, "y": 624.0}, {"id": "pathway:PI3K_AKT_mTOR", "label": "PI3K–AKT–mTOR\nsignaling", "name": "PI3K–AKT–mTOR signaling", "type": "pathway", "group": "mechanism", "description": "Growth and survival signaling; often downstream of RTKs.", "tags": ["cooperator"], "x": 0.0, "y": 702.0}, {"id": "process:proliferation_survival_program", "label": "Proliferation/surviv\nal program", "name": "Proliferation/survival program", "type": "process", "group": "mechanism", "description": "Generic growth/survival output program (placeholder).", "tags": ["cooperator"], "x": -107.5, "y": 780.0}, {"id": "process:growth_factor_signaling_context", "label": "Growth factor\nsignaling context", "name": "Growth factor signaling context", "type": "process", "group": "mechanism", "description": "Generic pro-growth signaling (placeholder).", "tags": ["cooperator"], "x": -215.0, "y": 546.0}], "edges": [{"id": "e0", "source": "gene:FH", "target": "process:tca_cycle_blockade", "predicate": "causes", "weight": 0.9, "evidence": "review_or_consensus", "mechanism": "loss of FH activity blocks fumarate to malate, leading to fumarate accumulation", "notes": "Represents effect of FH loss rather than normal FH enzymatic activity.", "hyp": false, "inh": false, "cost": 0.105}, {"id": "e1", "source": "process:tca_cycle_blockade", "target": "metabolite:fumarate", "predicate": "causes", "weight": 0.9, "evidence": "review_or_consensus", "mechanism": "fumarate accumulates upstream of FH blockade", "notes": null, "hyp": false, "inh": false, "cost": 0.105}, {"id": "e2", "source": "metabolite:fumarate", "target": "process:protein_succination", "predicate": "modifies", "weight": 0.85, "evidence": "biochemical_direct", "mechanism": "succination of cysteine residues (2SC adducts)", "notes": null, "hyp": false, "inh": false, "cost": 0.363}, {"id": "e3", "source": "process:protein_succination", "target": "protein:KEAP1", "predicate": "inhibits", "weight": 0.7, "evidence": "cell_model", "mechanism": "KEAP1 succination impairs NRF2 degradation", "notes": null, "hyp": false, "inh": true, "cost": 0.757}, {"id": "e4", "source": "protein:KEAP1", "target": "protein:NRF2", "predicate": "inhibits", "weight": 0.8, "evidence": "review_or_consensus", "mechanism": "KEAP1 targets NRF2 for degradation (baseline regulation)", "notes": null, "hyp": false, "inh": true, "cost": 0.623}, {"id": "e5", "source": "protein:NRF2", "target": "pathway:NRF2_ARE", "predicate": "activates", "weight": 0.85, "evidence": "review_or_consensus", "mechanism": "NRF2 transcriptional activation of antioxidant response genes", "notes": null, "hyp": false, "inh": false, "cost": 0.563}, {"id": "e6", "source": "state:oxidative_stress", "target": "pathway:NRF2_ARE", "predicate": "activates", "weight": 0.55, "evidence": "hypothesis", "mechanism": "oxidative stress can impair KEAP1-mediated NRF2 degradation, increasing NRF2-ARE activity.", "notes": "Stress context may increase reliance on NRF2; directionality is conceptual.", "hyp": true, "inh": false, "cost": 0.998}, {"id": "e7", "source": "metabolite:fumarate", "target": "process:akg_dioxygenase_inhibition", "predicate": "inhibits_activity_of", "weight": 0.75, "evidence": "review_or_consensus", "mechanism": "competitive inhibition of αKG-dependent dioxygenases by fumarate", "notes": null, "hyp": false, "inh": true, "cost": 0.388}, {"id": "e8", "source": "process:akg_dioxygenase_inhibition", "target": "process:PHD_inhibition", "predicate": "causes", "weight": 0.7, "evidence": "review_or_consensus", "mechanism": "PHDs are a subset of αKG-dependent dioxygenases", "notes": null, "hyp": false, "inh": false, "cost": 0.357}, {"id": "e9", "source": "process:PHD_inhibition", "target": "state:HIF_stabilization", "predicate": "causes", "weight": 0.8, "evidence": "review_or_consensus", "mechanism": "reduced hydroxylation reduces HIFα degradation", "notes": null, "hyp": false, "inh": false, "cost": 0.223}, {"id": "e10", "source": "state:HIF_stabilization", "target": "state:pseudohypoxia", "predicate": "causes", "weight": 0.75, "evidence": "review_or_consensus", "mechanism": "stabilized HIF activates hypoxia-response transcription in normoxia", "notes": null, "hyp": false, "inh": false, "cost": 0.288}, {"id": "e11", "source": "process:akg_dioxygenase_inhibition", "target": "process:TET_KDM_inhibition", "predicate": "causes", "weight": 0.65, "evidence": "review_or_consensus", "mechanism": "TET/KDM enzymes are αKG-dependent dioxygenases inhibited by fumarate", "notes": null, "hyp": false, "inh": false, "cost": 0.431}, {"id": "e12", "source": "process:TET_KDM_inhibition", "target": "process:DNA_hypermethylation", "predicate": "causes", "weight": 0.7, "evidence": "patient_omics", "mechanism": "impaired demethylation shifts epigenome toward hypermethylation", "notes": null, "hyp": false, "inh": false, "cost": 0.357}, {"id": "e13", "source": "process:DNA_hypermethylation", "target": "phenotype:CIMP", "predicate": "causes", "weight": 0.7, "evidence": "patient_omics", "mechanism": "global hypermethylation manifests as CpG island methylator phenotype", "notes": null, "hyp": false, "inh": false, "cost": 0.357}, {"id": "e14", "source": "metabolite:fumarate", "target": "state:oxidative_stress", "predicate": "causes", "weight": 0.55, "evidence": "review_or_consensus", "mechanism": "redox imbalance and succination-associated stress under FH loss", "notes": "Simplified: ROS/oxidative stress is context-dependent and may vary by model.", "hyp": false, "inh": false, "cost": 0.598}, {"id": "e15", "source": "state:oxidative_stress", "target": "process:mitochondrial_damage", "predicate": "causes", "weight": 0.45, "evidence": "hypothesis", "mechanism": "ROS can damage mitochondrial membranes and genomes", "notes": "Mechanistic direction is plausible but not asserted as universal.", "hyp": true, "inh": false, "cost": 0.799}, {"id": "e16", "source": "process:mitochondrial_damage", "target": "process:mtDNA_leakage", "predicate": "enables", "weight": 0.45, "evidence": "hypothesis", "mechanism": "mitochondrial stress can lead to mtDNA release into cytosol", "notes": null, "hyp": true, "inh": false, "cost": 1.599}, {"id": "e17", "source": "process:mtDNA_leakage", "target": "pathway:cGAS_STING", "predicate": "activates", "weight": 0.55, "evidence": "review_or_consensus", "mechanism": "cytosolic DNA engages innate immune sensing", "notes": null, "hyp": false, "inh": false, "cost": 0.998}, {"id": "e18", "source": "pathway:cGAS_STING", "target": "process:chronic_interferon_signaling", "predicate": "causes", "weight": 0.5, "evidence": "hypothesis", "mechanism": "persistent sensing may drive sustained interferon response", "notes": "Chronicity is context-dependent; encoded as uncertain.", "hyp": true, "inh": false, "cost": 0.693}, {"id": "e19", "source": "process:chronic_interferon_signaling", "target": "phenotype:immunosuppressive_TME", "predicate": "enables", "weight": 0.45, "evidence": "hypothesis", "mechanism": "chronic inflammation can contribute to immune dysfunction/exhaustion", "notes": "Directionality reflects a conceptual model; not a clinical claim.", "hyp": true, "inh": false, "cost": 1.599}, {"id": "e20", "source": "pathway:NRF2_ARE", "target": "process:antioxidant_defense", "predicate": "activates", "weight": 0.7, "evidence": "review_or_consensus", "mechanism": "NRF2 transcriptional program increases antioxidant capacity", "notes": null, "hyp": false, "inh": false, "cost": 0.757}, {"id": "e21", "source": "process:antioxidant_defense", "target": "state:oxidative_stress", "predicate": "decreases", "weight": 0.5, "evidence": "review_or_consensus", "mechanism": "antioxidant programs reduce ROS burden", "notes": "Negative feedback; simplifies dose/timing.", "hyp": false, "inh": true, "cost": 1.293}, {"id": "e22", "source": "state:pseudohypoxia", "target": "process:angiogenesis_program", "predicate": "causes", "weight": 0.65, "evidence": "review_or_consensus", "mechanism": "HIF activation induces angiogenic factors such as VEGF", "notes": null, "hyp": false, "inh": false, "cost": 0.431}, {"id": "e23", "source": "process:angiogenesis_program", "target": "phenotype:tumor_vascularity", "predicate": "causes", "weight": 0.6, "evidence": "review_or_consensus", "mechanism": "angiogenic signaling increases tumor vascularity", "notes": null, "hyp": false, "inh": false, "cost": 0.511}, {"id": "e24", "source": "phenotype:tumor_vascularity", "target": "phenotype:immunosuppressive_TME", "predicate": "enables", "weight": 0.35, "evidence": "hypothesis", "mechanism": "aberrant vasculature can contribute to immune dysfunction and exclusion", "notes": "Simplified: vascularity→immune suppression is context-dependent.", "hyp": true, "inh": false, "cost": 1.85}, {"id": "e25", "source": "phenotype:CIMP", "target": "process:antigen_presentation_down", "predicate": "enables", "weight": 0.4, "evidence": "hypothesis", "mechanism": "epigenetic silencing may reduce antigen presentation machinery (simplified)", "notes": "Placeholder mechanism; revise when adding specific genes/processes.", "hyp": true, "inh": false, "cost": 1.716}, {"id": "e26", "source": "process:antigen_presentation_down", "target": "process:immune_evasion_program", "predicate": "causes", "weight": 0.45, "evidence": "hypothesis", "mechanism": "reduced antigen presentation facilitates immune evasion", "notes": null, "hyp": true, "inh": false, "cost": 0.799}, {"id": "e27", "source": "process:immune_evasion_program", "target": "phenotype:immunosuppressive_TME", "predicate": "enables", "weight": 0.45, "evidence": "hypothesis", "mechanism": "immune evasion contributes to immunosuppressive microenvironment", "notes": null, "hyp": true, "inh": false, "cost": 1.599}, {"id": "e28", "source": "phenotype:immunosuppressive_TME", "target": "phenotype:cancer", "predicate": "enables", "weight": 0.35, "evidence": "hypothesis", "mechanism": "immune suppression may permit tumor outgrowth and progression", "notes": "Facilitator edge; not a deterministic claim.", "hyp": true, "inh": false, "cost": 1.85}, {"id": "e29", "source": "phenotype:CIMP", "target": "phenotype:cancer", "predicate": "enables", "weight": 0.4, "evidence": "hypothesis", "mechanism": "epigenetic reprogramming may increase evolutionary plasticity / malignant potential", "notes": "Encodes 'necessary vs sufficient' uncertainty.", "hyp": true, "inh": false, "cost": 1.716}, {"id": "e30", "source": "state:pseudohypoxia", "target": "phenotype:cancer", "predicate": "enables", "weight": 0.35, "evidence": "hypothesis", "mechanism": "pseudohypoxia supports survival, angiogenesis, and growth programs", "notes": "Facilitator edge.", "hyp": true, "inh": false, "cost": 1.85}, {"id": "e31", "source": "pathway:NRF2_ARE", "target": "phenotype:cancer", "predicate": "enables", "weight": 0.3, "evidence": "hypothesis", "mechanism": "antioxidant adaptation can enable survival under metabolic stress", "notes": "Not claiming NRF2 is an oncogene here; survival-enabling framing.", "hyp": true, "inh": false, "cost": 2.004}, {"id": "e32", "source": "phenotype:CIMP", "target": "process:genomic_instability", "predicate": "enables", "weight": 0.3, "evidence": "hypothesis", "mechanism": "epigenetic silencing of repair programs may increase instability (placeholder)", "notes": "Placeholder until specific repair processes/genes are encoded.", "hyp": true, "inh": false, "cost": 2.004}, {"id": "e33", "source": "process:genomic_instability", "target": "phenotype:cancer", "predicate": "enables", "weight": 0.4, "evidence": "hypothesis", "mechanism": "genomic instability can accelerate acquisition of malignant capabilities", "notes": "Facilitator edge.", "hyp": true, "inh": false, "cost": 1.716}, {"id": "e34", "source": "gene:NF2", "target": "pathway:Hippo", "predicate": "inhibits", "weight": 0.3, "evidence": "hypothesis", "mechanism": "placeholder: NF2 loss can dysregulate Hippo/YAP/TAZ signaling (direction simplified)", "notes": "This edge is intentionally uncertain; revise with explicit YAP/TAZ nodes later.", "hyp": true, "inh": true, "cost": 1.604}, {"id": "e35", "source": "pathway:Hippo", "target": "process:proliferation_survival_program", "predicate": "enables", "weight": 0.35, "evidence": "hypothesis", "mechanism": "Hippo dysregulation may promote growth/survival outputs", "notes": "Placeholder; clarify directionality when adding YAP/TAZ.", "hyp": true, "inh": false, "cost": 1.85}, {"id": "e36", "source": "pathway:RTK_signaling", "target": "pathway:PI3K_AKT_mTOR", "predicate": "activates", "weight": 0.55, "evidence": "review_or_consensus", "mechanism": "RTKs can activate PI3K/AKT/mTOR signaling", "notes": null, "hyp": false, "inh": false, "cost": 0.998}, {"id": "e37", "source": "pathway:PI3K_AKT_mTOR", "target": "process:proliferation_survival_program", "predicate": "enables", "weight": 0.45, "evidence": "hypothesis", "mechanism": "growth/survival signaling supports proliferation under stress", "notes": "Generic; not asserting universal activation in FHRCC.", "hyp": true, "inh": false, "cost": 1.599}, {"id": "e38", "source": "process:proliferation_survival_program", "target": "phenotype:cancer", "predicate": "enables", "weight": 0.45, "evidence": "hypothesis", "mechanism": "proliferation/survival outputs facilitate malignant progression", "notes": "Facilitator edge.", "hyp": true, "inh": false, "cost": 1.599}, {"id": "e39", "source": "phenotype:CIMP", "target": "pathway:RTK_signaling", "predicate": "enables", "weight": 0.2, "evidence": "hypothesis", "mechanism": "placeholder: epigenetic rewiring may indirectly enable growth signaling programs", "notes": "Weak/placeholder; revise once specific RTKs (e.g., MET) are added.", "hyp": true, "inh": false, "cost": 2.409}, {"id": "e40", "source": "state:pseudohypoxia", "target": "process:growth_factor_signaling_context", "predicate": "enables", "weight": 0.35, "evidence": "hypothesis", "mechanism": "hypoxia-like programs can reshape growth factor and stromal signaling context", "notes": "Placeholder bridge; revise with specific factors if desired.", "hyp": true, "inh": false, "cost": 1.85}, {"id": "e41", "source": "process:growth_factor_signaling_context", "target": "pathway:RTK_signaling", "predicate": "activates", "weight": 0.4, "evidence": "hypothesis", "mechanism": "pro-growth context can increase RTK pathway activity", "notes": "Non-specific by design.", "hyp": true, "inh": false, "cost": 1.316}, {"id": "e42", "source": "pathway:PI3K_AKT_mTOR", "target": "process:proliferation_survival_program", "predicate": "activates", "weight": 0.45, "evidence": "hypothesis", "mechanism": "growth signaling activates downstream proliferation/survival outputs", "notes": "Switches from enables→activates to reduce predicate penalty but remains hypothesis.", "hyp": true, "inh": false, "cost": 1.199}], "paths": {"phenotype:CIMP": [{"cost": 1.743, "hops": 6, "edges": ["e0", "e1", "e7", "e11", "e12", "e13"]}], "phenotype:immunosuppressive_TME": [{"cost": 4.257, "hops": 9, "edges": ["e0", "e1", "e7", "e8", "e9", "e10", "e22", "e23", "e24"]}, {"cost": 5.856, "hops": 9, "edges": ["e0", "e1", "e7", "e11", "e12", "e13", "e25", "e26", "e27"]}, {"cost": 6.495, "hops": 8, "edges": ["e0", "e1", "e14", "e15", "e16", "e17", "e18", "e19"]}, {"cost": 10.252, "hops": 13, "edges": ["e0", "e1", "e2", "e3", "e4", "e5", "e20", "e21", "e15", "e16", "e17", "e18", "e19"]}], "phenotype:tumor_vascularity": [{"cost": 2.408, "hops": 8, "edges": ["e0", "e1", "e7", "e8", "e9", "e10", "e22", "e23"]}], "phenotype:cancer": [{"cost": 3.316, "hops": 7, "edges": ["e0", "e1", "e7", "e8", "e9", "e10", "e30"]}, {"cost": 3.459, "hops": 7, "edges": ["e0", "e1", "e7", "e11", "e12", "e13", "e29"]}, {"cost": 3.81, "hops": 5, "edges": ["e0", "e1", "e14", "e6", "e31"]}, {"cost": 4.52, "hops": 7, "edges": ["e0", "e1", "e2", "e3", "e4", "e5", "e31"]}, {"cost": 5.463, "hops": 8, "edges": ["e0", "e1", "e7", "e11", "e12", "e13", "e32", "e33"]}]}, "supportedReach": {"phenotype:CIMP": true, "phenotype:immunosuppressive_TME": false, "phenotype:tumor_vascularity": true, "phenotype:cancer": false}, "groupLabels": {"molecular": "Molecular entity (gene, protein, metabolite)", "mechanism": "Mechanism (process, state, pathway)", "phenotype": "Phenotype / outcome"}, "defaultTarget": "phenotype:cancer"}</script>
+<script src="https://cdn.jsdelivr.net/npm/cytoscape@3.30.4/dist/cytoscape.min.js"></script>
+<script>
+(function () {
+  const D = JSON.parse(document.getElementById('kg-data').textContent);
+  const $ = (id) => document.getElementById(id);
+  const css = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+  const nameOf = Object.fromEntries(D.nodes.map(n => [n.id, n.name]));
+  const edgeById = Object.fromEntries(D.edges.map(e => [e.id, e]));
+  const pretty = (s) => s.replace(/_/g, ' ');
+  const esc = (s) => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+  if (typeof cytoscape === 'undefined') {
+    $('cy').innerHTML = '<p style="padding:16px" class="muted">The graph library could not be loaded (it is fetched from a CDN). Please check your connection. The table below lists every edge.</p>';
+  }
+
+  // ---- legend
+  const leg = [];
+  for (const g of Object.keys(D.groupLabels)) leg.push(`<span><i class="sw" style="border-color:var(--c-${g});background:color-mix(in srgb, var(--c-${g}) 20%, transparent)"></i>${esc(D.groupLabels[g])}</span>`);
+  leg.push('<span><i class="ln"></i>Supported edge</span>', '<span><i class="ln dash"></i>Hypothesis-level edge</span>', '<span><i class="tbar"></i>Inhibitory</span>', '<span><i class="ln hi"></i>Selected explanation</span>', '<span>Line width = confidence</span>');
+  $('legend').innerHTML = leg.join('');
+
+  // ---- table view
+  $('edge-table').tBodies[0].innerHTML = D.edges.map(e =>
+    `<tr><td>${esc(nameOf[e.source])}</td><td>${esc(pretty(e.predicate))}</td><td>${esc(nameOf[e.target])}</td><td>${esc(pretty(e.evidence))}</td><td>${e.weight.toFixed(2)}</td></tr>`).join('');
+
+  // ---- controls
+  const tsel = $('target'), rsel = $('rank');
+  Object.keys(D.paths).forEach(t => { const o = document.createElement('option'); o.value = t; o.textContent = nameOf[t]; tsel.appendChild(o); });
+  tsel.value = D.defaultTarget;
+  function fillRanks() {
+    rsel.innerHTML = '';
+    (D.paths[tsel.value] || []).forEach((p, i) => { const o = document.createElement('option'); o.value = i; o.textContent = `#${i + 1} (cost ${p.cost.toFixed(2)}, ${p.hops} steps)`; rsel.appendChild(o); });
+  }
+
+  let cy = null;
+  function styles() {
+    const ink = css('--ink'), muted = css('--muted'), hi = css('--hi'), tint = parseFloat(css('--tint'));
+    const col = (g) => css('--c-' + g);
+    const s = [
+      { selector: 'node', style: { 'shape': 'round-rectangle', 'label': 'data(label)', 'text-wrap': 'wrap', 'text-max-width': 120, 'text-valign': 'center', 'text-halign': 'center', 'font-size': 11, 'color': ink, 'width': 'label', 'height': 'label', 'padding': '9px', 'border-width': 2, 'background-opacity': tint } },
+      { selector: 'edge', style: { 'curve-style': 'bezier', 'line-color': muted, 'target-arrow-color': muted, 'target-arrow-shape': 'triangle', 'arrow-scale': 1.1, 'width': 'mapData(weight, 0.2, 0.9, 1, 4)', 'opacity': 0.7 } },
+      { selector: 'edge.inh', style: { 'target-arrow-shape': 'tee' } },
+      { selector: 'edge.hyp', style: { 'line-style': 'dashed', 'line-dash-pattern': [6, 4] } },
+      { selector: 'edge.faded', style: { 'opacity': 0.08 } },
+      { selector: '.dim', style: { 'opacity': 0.22 } },
+      { selector: 'edge.on', style: { 'line-color': hi, 'target-arrow-color': hi, 'opacity': 1, 'z-index': 20, 'width': 'mapData(weight, 0.2, 0.9, 2.5, 5.5)' } },
+      { selector: 'node.on', style: { 'border-width': 3.5, 'opacity': 1 } },
+      { selector: 'node:selected', style: { 'border-width': 4, 'overlay-opacity': 0 } },
+    ];
+    for (const g of Object.keys(D.groupLabels)) s.push({ selector: `node[group = "${g}"]`, style: { 'background-color': col(g), 'border-color': col(g) } });
+    return s;
+  }
+
+  function build() {
+    if (typeof cytoscape === 'undefined') return;
+    cy = cytoscape({
+      container: $('cy'),
+      elements: [
+        ...D.nodes.map(n => ({ data: { id: n.id, label: n.label, group: n.group }, position: { x: n.x, y: n.y } })),
+        ...D.edges.map(e => ({ data: { id: e.id, source: e.source, target: e.target, weight: e.weight }, classes: (e.hyp ? 'hyp ' : '') + (e.inh ? 'inh' : '') })),
+      ],
+      layout: { name: 'preset' },
+      style: styles(),
+      wheelSensitivity: 0.25,
+      minZoom: 0.25, maxZoom: 2.5,
+    });
+    cy.on('tap', 'node', (ev) => showNode(ev.target.id()));
+    cy.on('tap', (ev) => { if (ev.target === cy) { cy.$(':selected').unselect(); showPath(); } });
+    cy.on('tap', 'edge', (ev) => showEdge(ev.target.id()));
+  }
+
+  function evChip(e) { return `<span class="chip${e.hyp ? ' hyp' : ''}">${esc(pretty(e.evidence))}</span>`; }
+
+  function applyFade() {
+    if (!cy) return;
+    const on = $('fade').checked;
+    cy.edges('.hyp').toggleClass('faded', on);
+    cy.edges('.hyp.on').removeClass('faded');
+  }
+
+  function showPath() {
+    const t = tsel.value, r = parseInt(rsel.value || '0', 10) || 0;
+    const p = (D.paths[t] || [])[r];
+    if (cy) { cy.elements().removeClass('on dim'); }
+    if (!p) { $('panel').innerHTML = '<p class="muted">No path found.</p>'; return; }
+    const ids = new Set(p.edges);
+    if (cy) {
+      cy.elements().addClass('dim');
+      const nodes = new Set([D.source]);
+      p.edges.forEach(id => { const e = edgeById[id]; nodes.add(e.source); nodes.add(e.target); });
+      cy.edges().filter(e => ids.has(e.id())).removeClass('dim').addClass('on');
+      cy.nodes().filter(n => nodes.has(n.id())).removeClass('dim').addClass('on');
+      applyFade();
+    }
+    const hypN = p.edges.filter(id => edgeById[id].hyp).length;
+    let h = `<h2>${esc(nameOf[D.source])} → ${esc(nameOf[t])}</h2><p class="muted">Explanation #${r + 1}: cost ${p.cost.toFixed(2)} across ${p.hops} steps. Lower cost means higher-confidence, more specific edges.</p>`;
+    if (!D.supportedReach[t]) h += `<div class="callout"><b>No route uses supported edges alone.</b> Every route from ${esc(nameOf[D.source])} to ${esc(nameOf[t])} passes through at least one hypothesis-level edge${hypN ? ` (this one has ${hypN})` : ''}. That is where new evidence would change the map most.</div>`;
+    h += '<h3>Steps</h3>';
+    p.edges.forEach((id, i) => {
+      const e = edgeById[id];
+      h += `<div class="step${e.hyp ? ' hyp' : ''}"><div>${i + 1}. ${esc(nameOf[e.source])} → ${esc(nameOf[e.target])}</div><div class="pred">${esc(pretty(e.predicate))}, w = ${e.weight.toFixed(2)}${evChip(e)}</div>${e.mechanism ? `<div class="muted">${esc(e.mechanism)}</div>` : ''}${e.notes ? `<div class="muted"><i>${esc(e.notes)}</i></div>` : ''}</div>`;
+    });
+    h += '<p class="muted">Click any box or arrow for details.</p>';
+    $('panel').innerHTML = h;
+  }
+
+  function showNode(id) {
+    const n = D.nodes.find(x => x.id === id);
+    const ins = D.edges.filter(e => e.target === id), outs = D.edges.filter(e => e.source === id);
+    const li = (e, other) => `<li>${esc(pretty(e.predicate))} ${esc(nameOf[other])}${evChip(e)}</li>`;
+    $('panel').innerHTML = `<h2>${esc(n.name)}</h2><p class="muted">${esc(pretty(n.type))}${n.tags.length ? ' · ' + esc(n.tags.map(pretty).join(', ')) : ''}</p>${n.description ? `<p>${esc(n.description)}</p>` : ''}
+      <h3>Caused or influenced by</h3><ul>${ins.map(e => li(e, e.source)).join('') || '<li class="muted">nothing upstream in this graph</li>'}</ul>
+      <h3>Leads to</h3><ul>${outs.map(e => li(e, e.target)).join('') || '<li class="muted">terminal node</li>'}</ul>
+      <p><button type="button" id="back">Back to selected explanation</button></p>`;
+    $('back').onclick = showPath;
+  }
+
+  function showEdge(id) {
+    const e = edgeById[id];
+    $('panel').innerHTML = `<h2>${esc(nameOf[e.source])} → ${esc(nameOf[e.target])}</h2><p>${esc(pretty(e.predicate))}${evChip(e)}<br><span class="muted">confidence w = ${e.weight.toFixed(2)}, edge cost ${e.cost.toFixed(2)}</span></p>${e.mechanism ? `<h3>Mechanism</h3><p>${esc(e.mechanism)}</p>` : ''}${e.notes ? `<h3>Notes</h3><p>${esc(e.notes)}</p>` : ''}<p><button type="button" id="back">Back to selected explanation</button></p>`;
+    $('back').onclick = showPath;
+  }
+
+  tsel.onchange = () => { fillRanks(); showPath(); };
+  rsel.onchange = showPath;
+  $('fade').onchange = () => { applyFade(); };
+  $('reset').onclick = () => { if (cy) cy.fit(undefined, 30); tsel.value = D.defaultTarget; fillRanks(); showPath(); };
+
+  const mq = window.matchMedia('(prefers-color-scheme: dark)');
+  const restyle = () => { if (cy) cy.style(styles()); };
+  mq.addEventListener ? mq.addEventListener('change', restyle) : mq.addListener(restyle);
+
+  build();
+  fillRanks();
+  showPath();
+  if (cy) cy.fit(undefined, 30);
+  window.addEventListener('resize', () => { if (cy) cy.fit(undefined, 30); });
+})();
+</script>
+</body>
+</html>

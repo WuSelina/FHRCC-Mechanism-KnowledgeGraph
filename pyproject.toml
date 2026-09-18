@@ -8,14 +8,20 @@ version = "0.1.0"
 description = "Practice knowledge graph for FH-deficient RCC (study tool)"
 readme = "README.md"
 requires-python = ">=3.10"
-license = {text = ""}
+license = {text = "MIT"}
 authors = [{name = "Selina Wu"}]
 dependencies = []
 
+[project.urls]
+Homepage = "https://github.com/WuSelina/FHRCC-Mechanism-KnowledgeGraph"
+
 [project.optional-dependencies]
+# Core library and CLI have no runtime dependencies; matplotlib is only for static figures.
+viz = ["matplotlib>=3.8"]
 dev = [
     "pytest>=7",
     "ruff>=0.4",
+    "matplotlib>=3.8",
 ]
 
 [tool.setuptools]
