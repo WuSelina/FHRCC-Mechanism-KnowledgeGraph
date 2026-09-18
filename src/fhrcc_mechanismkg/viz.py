@@ -23,10 +23,11 @@ SURFACE, INK, INK2, MUTED, GRID, LINE = "#fcfcfb", "#0b0b0b", "#52514e", "#89878
 GROUP_COLOR = {"molecular": BLUE, "mechanism": AQUA, "phenotype": ORANGE}
 FONT = ["Segoe UI", "DejaVu Sans", "Arial"]
 
-# Type scale for panel headers: subheader is two sizes (pt) below the title, y labels four below
-TITLE_PT = 12.5
-SUBTITLE_PT = TITLE_PT - 2
-YLABEL_MIN_PT = TITLE_PT - 4  # y labels never go below this; larger existing sizes are kept
+# Type scale (pt) shared by every figure
+TITLE_PT = 14  # panel and figure titles, bold
+SUBTITLE_PT = 12  # subheaders, regular weight
+LABEL_PT = 10  # tick labels, annotations, axis titles (bold), node text
+LEGEND_PT = 11
 
 
 def _mpl():
@@ -44,9 +45,13 @@ def _mpl():
             "savefig.facecolor": SURFACE,
             "text.color": INK,
             "axes.edgecolor": LINE,
-            "axes.labelcolor": INK2,
+            "axes.labelcolor": INK,
+            "axes.labelsize": LABEL_PT,
+            "axes.labelweight": "bold",
             "xtick.color": MUTED,
             "ytick.color": INK2,
+            "xtick.labelsize": LABEL_PT,
+            "ytick.labelsize": LABEL_PT,
         }
     )
     return plt
@@ -63,6 +68,11 @@ def _edge_id(e) -> Tuple[str, str, str]:
     return (e.subject, e.predicate, e.object)
 
 
+def _panel_header(ax, title: str, subtitle: str) -> None:
+    ax.set_title(title, loc = "left", fontsize = TITLE_PT, fontweight = "bold", pad = 34)
+    ax.text(0, 1.035, subtitle, transform = ax.transAxes, fontsize = SUBTITLE_PT, color = INK2)
+
+
 def draw_overview(
     graph: Graph,
     out_path: str,
@@ -75,16 +85,16 @@ def draw_overview(
     from matplotlib.patches import FancyArrowPatch, FancyBboxPatch, Patch
 
     pos = layered_layout(graph)
-    sx, sy, bw, bh = 2.9, 1.15, 2.05, 0.66
+    sx, sy, bw, bh = 2.6, 1.02, 2.15, 0.68
     xy = {n: (p[0] * sx, -p[1] * sy) for n, p in pos.items()}
     xs = [p[0] for p in xy.values()]
     ys = [p[1] for p in xy.values()]
     width = max(xs) - min(xs) + bw + 1.0
-    height = (max(ys) - min(ys) + bh + 1.1) / 0.85  # axes occupy 85% of the figure height
+    height = (max(ys) - min(ys) + bh + 0.9) / 0.87  # axes occupy 87% of the figure height
 
     fig, ax = plt.subplots(figsize = (width, height))
     ax.set_xlim(min(xs) - bw / 2 - 0.5, max(xs) + bw / 2 + 0.5)
-    ax.set_ylim(min(ys) - bh / 2 - 0.55, max(ys) + bh / 2 + 0.55)
+    ax.set_ylim(min(ys) - bh / 2 - 0.25, max(ys) + bh / 2 + 0.25)
     ax.set_aspect("equal")
     ax.axis("off")
 
@@ -106,7 +116,7 @@ def draw_overview(
         ax.add_patch(p)
         patches[n.id] = p
         label = textwrap.fill(n.name, 22)
-        ax.text(x, y, label, ha = "center", va = "center", fontsize = 9, color = INK, zorder = 4, linespacing = 1.15)
+        ax.text(x, y, label, ha = "center", va = "center", fontsize = LABEL_PT, color = INK, zorder = 4, linespacing = 1.15)
 
     on_path: Set[Tuple[str, str, str]] = {_edge_id(s.edge) for s in highlight.steps} if highlight else set()
     for e in sorted(graph.edges, key = lambda e: _edge_id(e) in on_path):
@@ -146,15 +156,16 @@ def draw_overview(
         loc = "lower center",
         ncol = 4,
         frameon = False,
-        fontsize = 9,
+        fontsize = LEGEND_PT,
         labelcolor = INK2,
-        bbox_to_anchor = (0.5, 0.005),
+        bbox_to_anchor = (0.5, 0.004),
+        columnspacing = 1.6,
     )
-    fig.text(0.5, 0.985, title, ha = "center", va = "top", fontsize = 17, fontweight = "bold", color = INK)
+    fig.text(0.5, 0.988, title, ha = "center", va = "top", fontsize = TITLE_PT, fontweight = "bold", color = INK)
     if subtitle:
-        fig.text(0.5, 0.955, subtitle, ha = "center", va = "top", fontsize = 10.5, color = INK2)
-    fig.text(0.995, 0.055, "Line width = edge confidence", ha = "right", fontsize = 8.5, color = MUTED)
-    fig.subplots_adjust(left = 0, right = 1, top = 0.94, bottom = 0.09)
+        fig.text(0.5, 0.962, subtitle, ha = "center", va = "top", fontsize = SUBTITLE_PT, color = INK2)
+    fig.text(0.5, 0.06, "Line width = edge confidence", ha = "center", fontsize = LEGEND_PT, color = INK2)
+    fig.subplots_adjust(left = 0, right = 1, top = 0.945, bottom = 0.075)
     _save(fig, out_path)
 
 
@@ -171,52 +182,61 @@ def _clean_axes(ax) -> None:
     ax.set_axisbelow(True)
 
 
+def _plural(n: int, word: str) -> str:
+    return f"{n} {word}" if n == 1 else f"{n} {word}s"
+
+
 def draw_path_comparison(graph: Graph, paths: List[PathResult], out_path: str, source_name: str, target_name: str) -> None:
     plt = _mpl()
     from matplotlib.patches import Patch
 
-    fig, (a1, a2) = plt.subplots(1, 2, figsize = (14.5, 5.6), gridspec_kw = {"width_ratios": [1.15, 1]})
+    fig, (a1, a2) = plt.subplots(1, 2, figsize = (17, 6.0), gridspec_kw = {"width_ratios": [1.2, 1]})
 
     summ = [path_summary(p) for p in paths]
-    labels = []
-    for i, p in enumerate(paths, 1):
-        ids = p.node_ids()
-        labels.append(f"{i}. via {_short(graph, ids[-2], 40)}")
+    # Paths are ranked top to bottom; the label is the last step before the outcome
+    labels = [_short(graph, p.node_ids()[-2], 36) for p in paths]
     ypos = list(range(len(paths)))[::-1]
     conf = [s["confidence_cost"] for s in summ]
     pen = [s["predicate_penalty"] for s in summ]
-    h = 0.5
-    a1.barh(ypos, conf, height = h, color = BLUE, edgecolor = SURFACE, lw = 1.5, label = "Low confidence  (−ln w)")
-    a1.barh(ypos, pen, height = h, left = conf, color = ORANGE, edgecolor = SURFACE, lw = 1.5, label = "Vague predicate penalty")
+    a1.barh(ypos, conf, height = 0.5, color = BLUE, edgecolor = SURFACE, lw = 1.5)
+    a1.barh(ypos, pen, height = 0.5, left = conf, color = ORANGE, edgecolor = SURFACE, lw = 1.5)
     for y, s in zip(ypos, summ):
-        a1.text(s["cost"] + 0.08, y, f'{s["cost"]:.2f}  ·  {int(s["hops"])} hops  ·  {int(s["n_hypothesis_edges"])} hypothesis {"edge" if s["n_hypothesis_edges"] == 1 else "edges"}', va = "center", fontsize = 8.8, color = INK2)
+        t = a1.text(s["cost"] + 0.08, y, f'{s["cost"]:.2f}', va = "center", fontsize = LABEL_PT, fontweight = "bold", color = INK)
+        rest = f', {_plural(int(s["hops"]), "hop")}, {_plural(int(s["n_hypothesis_edges"]), "hypothesis edge")}'
+        a1.annotate(rest, xy = (1, 0.5), xycoords = t, xytext = (0, 0), textcoords = "offset points", va = "center", ha = "left", fontsize = LABEL_PT, color = INK2)
     a1.set_yticks(ypos)
-    a1.set_yticklabels(labels, fontsize = 9.5)
-    a1.set_xlim(0, max(s["cost"] for s in summ) * 1.62)
-    a1.set_xlabel("Path cost (lower = more credible mechanism)", fontsize = 9.5)
-    a1.set_title(f"Competing explanations: {source_name} → {target_name}", loc = "left", fontsize = 12.5, fontweight = "bold", pad = 26)
-    a1.text(0, 1.03, "Top-ranked paths, labelled by the last step before the outcome", transform = a1.transAxes, fontsize = 9.5, color = INK2)
+    a1.set_yticklabels(labels)
+    a1.set_xlim(0, max(s["cost"] for s in summ) * 1.85)
+    a1.set_xlabel("Path Cost (Lower = More Credible Mechanism)", labelpad = 8)
+    _panel_header(a1, f"Competing Explanations From {source_name} to {target_name.title()}", "Top-ranked paths, labeled by the last step before the outcome")
     _clean_axes(a1)
-    a1.legend(handles = [Patch(fc = BLUE, label = "Low-confidence edges (−ln w)"), Patch(fc = ORANGE, label = "Vague-predicate penalty")], loc = "upper center", bbox_to_anchor = (0.5, -0.16), ncol = 2, frameon = False, fontsize = 9, labelcolor = INK2)
+    a1.legend(
+        handles = [Patch(fc = BLUE, label = "Cost from lower-confidence edges"), Patch(fc = ORANGE, label = "Cost from vague relation types (e.g., enables)")],
+        loc = "upper center",
+        bbox_to_anchor = (0.5, -0.2),
+        ncol = 1,
+        frameon = False,
+        fontsize = LEGEND_PT,
+        labelcolor = INK2,
+    )
 
     conv = convergence(paths)[:9]
-    names = [_short(graph, n, 34) for n, _ in conv][::-1]
+    names = [_short(graph, n, 40) for n, _ in conv][::-1]
     vals = [v for _, v in conv][::-1]
     colors = [BLUE if v >= 0.999 else MUTED for v in vals]
     yy = list(range(len(vals)))
     a2.barh(yy, vals, height = 0.5, color = colors, edgecolor = SURFACE, lw = 1.5)
     for y, v in zip(yy, vals):
-        a2.text(v + 0.015, y, f"{v:.0%}", va = "center", fontsize = 9, color = INK2)
+        a2.text(v + 0.015, y, f"{v:.0%}", va = "center", fontsize = LABEL_PT, color = INK2)
     a2.set_yticks(yy)
-    a2.set_yticklabels(names, fontsize = 9.5)
+    a2.set_yticklabels(names)
     a2.set_xlim(0, 1.12)
     a2.xaxis.set_major_formatter(lambda v, _: f"{v:.0%}")
-    a2.set_xlabel(f"Share of the top {len(paths)} paths passing through the node", fontsize = 9.5)
-    a2.set_title("Convergence points", loc = "left", fontsize = 12.5, fontweight = "bold", pad = 26)
-    a2.text(0, 1.03, "Nodes on every route (blue) are forced by graph structure; lower rows show real branching", transform = a2.transAxes, fontsize = 9.5, color = INK2)
+    a2.set_xlabel("Share of Paths (%)", labelpad = 8)
+    _panel_header(a2, f"Share of Top {len(paths)} Paths Through Each Node", "Blue nodes are forced by graph structure")
     _clean_axes(a2)
 
-    fig.tight_layout(w_pad = 3)
+    fig.tight_layout(w_pad = 3, rect = (0, 0.0, 1, 1))
     _save(fig, out_path)
 
 
@@ -224,7 +244,7 @@ def draw_evidence_audit(graph: Graph, best: PathResult, out_path: str, source_na
     plt = _mpl()
     from matplotlib.patches import Patch
 
-    fig, (a1, a2) = plt.subplots(1, 2, figsize = (14.5, 5.4), gridspec_kw = {"width_ratios": [1, 1.1]})
+    fig, (a1, a2) = plt.subplots(1, 2, figsize = (17, 5.8), gridspec_kw = {"width_ratios": [1, 1.15]})
 
     counts = evidence_counts(graph)
     levels = EVIDENCE_ORDER[::-1]
@@ -233,14 +253,12 @@ def draw_evidence_audit(graph: Graph, best: PathResult, out_path: str, source_na
     cols = [ORANGE if l == "hypothesis" else BLUE for l in levels]
     a1.barh(ypos, vals, height = 0.5, color = cols, edgecolor = SURFACE, lw = 1.5)
     for y, v in zip(ypos, vals):
-        a1.text(v + 0.3, y, str(v) if v else "0 (none yet)", va = "center", fontsize = 9, color = INK2 if v else MUTED)
+        a1.text(v + 0.3, y, str(v) if v else "0 (none yet)", va = "center", fontsize = LABEL_PT, color = INK2 if v else MUTED)
     a1.set_yticks(ypos)
-    a1.set_yticklabels([l.replace("_", " ") for l in levels], fontsize = max(9.5, YLABEL_MIN_PT))
+    a1.set_yticklabels([l.replace("_", " ") for l in levels])
     a1.set_xlim(0, 25)
-    a1.set_xlabel("Number of edges", fontsize = 9.5)
-    n_hyp = counts["hypothesis"]
-    a1.set_title(f"{n_hyp} of {len(graph.edges)} Edges Are Hypotheses", loc = "left", fontsize = TITLE_PT, fontweight = "bold", pad = 26)
-    a1.text(0, 1.03, "Evidence level of every edge, roughly ordered from clinical (top) to hypothesis", transform = a1.transAxes, fontsize = SUBTITLE_PT, color = INK2)
+    a1.set_xlabel("Number of Edges", labelpad = 8)
+    _panel_header(a1, f'{counts["hypothesis"]} of {len(graph.edges)} Edges Are Hypotheses', "Evidence level per edge, roughly ordered clinical to hypothesis")
     _clean_axes(a1)
 
     steps = best.steps
@@ -249,20 +267,15 @@ def draw_evidence_audit(graph: Graph, best: PathResult, out_path: str, source_na
     cols2 = [ORANGE if is_hypothesis(s.edge) else BLUE for s in steps]
     a2.barh(ypos2, w, height = 0.5, color = cols2, edgecolor = SURFACE, lw = 1.5)
     for y, s in zip(ypos2, steps):
-        a2.text(s.edge.weight + 0.015, y, f"{s.edge.weight:.2f}", va = "center", fontsize = 9, color = INK2)
+        a2.text(s.edge.weight + 0.015, y, f"{s.edge.weight:.2f}", va = "center", fontsize = LABEL_PT, color = INK2)
     lab = [f"{_short(graph, s.edge.subject, 30)} → {_short(graph, s.edge.object, 30)}" for s in steps]
     a2.set_yticks(ypos2)
-    a2.set_yticklabels(lab, fontsize = max(8.8, YLABEL_MIN_PT))
+    a2.set_yticklabels(lab)
     a2.set_xlim(0, 1.0)
-    a2.set_xlabel("Edge confidence (weight)", fontsize = 9.5)
-    a2.set_title("Confidence Along the Lowest-Cost Path", loc = "left", fontsize = TITLE_PT, fontweight = "bold", pad = 26)
-    a2.text(
-        0, 1.03,
-        "Confident at the metabolic root, hypothesis-level at the final step",
-        transform = a2.transAxes, fontsize = SUBTITLE_PT, color = INK2,
-    )
+    a2.set_xlabel("Edge Confidence (Weight)", labelpad = 8)
+    _panel_header(a2, "Confidence Along the Lowest-Cost Path", "Confident at the root, hypothesis-level at the final step")
     _clean_axes(a2)
-    a2.legend(handles = [Patch(fc = BLUE, label = "Supported"), Patch(fc = ORANGE, label = "Hypothesis")], loc = "lower right", frameon = False, fontsize = 9, labelcolor = INK2)
+    a2.legend(handles = [Patch(fc = BLUE, label = "Supported"), Patch(fc = ORANGE, label = "Hypothesis")], loc = "lower right", frameon = False, fontsize = LEGEND_PT, labelcolor = INK2)
 
     fig.tight_layout(w_pad = 3)
     _save(fig, out_path)
@@ -275,7 +288,5 @@ def _save(fig, out_path: str) -> None:
     import matplotlib.pyplot as plt
 
     plt.close(fig)
-
-
 
 
