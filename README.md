@@ -1,4 +1,4 @@
-# FHRCC Mechanism Knowledge Graph
+﻿# FHRCC Mechanism Knowledge Graph
 
 [![CI](https://github.com/WuSelina/FHRCC-Mechanism-KnowledgeGraph/actions/workflows/ci.yml/badge.svg)](https://github.com/WuSelina/FHRCC-Mechanism-KnowledgeGraph/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
@@ -70,8 +70,9 @@ A study tool and exploratory project, not a clinical or predictive instrument. P
 
 - Knowledge graph background: [btaf383](https://doi.org/10.1093/bioinformatics/btaf383), [btad418](https://doi.org/10.1093/bioinformatics/btad418), [PMC7327409](https://pmc.ncbi.nlm.nih.gov/articles/PMC7327409/), [PMC9372416](https://pmc.ncbi.nlm.nih.gov/articles/PMC9372416/), [Neo4j guide](https://neo4j.com/blog/knowledge-graph/how-to-build-knowledge-graph/), [Ghosh](https://samadritaghosh.medium.com/knowledge-graphs-what-why-and-how-84f920316ca5), [Lopez Yse](https://lopezyse.medium.com/knowledge-graphs-from-scratch-with-python-f3c2a05914cc), [Kaggle](https://www.kaggle.com/code/nageshsingh/build-knowledge-graph-using-python)
 - Interactive explorer rendered with [Cytoscape.js](https://js.cytoscape.org/)
-- AI assistants (ChatGPT, Claude) helped with code drafting, figure scripting, and documentation. The biological model, curated data, and interpretation are the author's own.
+- AI assistants (ChatGPT, Claude) helped with figure scripting. The biological model, curated data, and interpretation are the author's own.
 
 ## License
 
 MIT. See [LICENSE](LICENSE).
+

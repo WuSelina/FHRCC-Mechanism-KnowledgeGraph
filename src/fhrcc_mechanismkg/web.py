@@ -168,7 +168,7 @@ footer { max-width:1400px; margin:0 auto; padding: 0 16px 28px; color: var(--mut
 <div class="controls">
   <label>Outcome <select id="target"></select></label>
   <label>Explanation <select id="rank"></select></label>
-  <label><input type="checkbox" id="fade"> Fade hypothesis-level edges</label>
+  <label><input type="checkbox" id="fade"> Hide hypothesis-level edges</label>
   <button id="reset" type="button">Reset view</button>
 </div>
 
@@ -230,11 +230,14 @@ footer { max-width:1400px; margin:0 auto; padding: 0 16px 28px; color: var(--mut
       { selector: 'edge', style: { 'curve-style': 'bezier', 'line-color': muted, 'target-arrow-color': muted, 'target-arrow-shape': 'triangle', 'arrow-scale': 1.1, 'width': 'mapData(weight, 0.2, 0.9, 1, 4)', 'opacity': 0.7 } },
       { selector: 'edge.inh', style: { 'target-arrow-shape': 'tee' } },
       { selector: 'edge.hyp', style: { 'line-style': 'dashed', 'line-dash-pattern': [6, 4] } },
-      { selector: 'edge.faded', style: { 'opacity': 0.08 } },
       { selector: '.dim', style: { 'opacity': 0.22 } },
       { selector: 'edge.on', style: { 'line-color': hi, 'target-arrow-color': hi, 'opacity': 1, 'z-index': 20, 'width': 'mapData(weight, 0.2, 0.9, 2.5, 5.5)' } },
       { selector: 'node.on', style: { 'border-width': 3.5, 'opacity': 1 } },
-      { selector: 'node:selected', style: { 'border-width': 4, 'overlay-opacity': 0 } },
+      { selector: 'node:selected', style: { 'overlay-opacity': 0 } },
+      { selector: 'edge.nbr', style: { 'opacity': 0.95, 'z-index': 15 } },
+      { selector: 'node.nbr', style: { 'opacity': 1 } },
+      { selector: 'node.sel', style: { 'opacity': 1, 'border-width': 5, 'underlay-color': hi, 'underlay-opacity': 0.18, 'underlay-padding': 8, 'underlay-shape': 'round-rectangle', 'z-index': 30 } },
+      { selector: 'edge.faded', style: { 'display': 'none' } },
     ];
     for (const g of Object.keys(D.groupLabels)) s.push({ selector: `node[group = "${g}"]`, style: { 'background-color': col(g), 'border-color': col(g) } });
     return s;
@@ -263,14 +266,13 @@ footer { max-width:1400px; margin:0 auto; padding: 0 16px 28px; color: var(--mut
   function applyFade() {
     if (!cy) return;
     const on = $('fade').checked;
-    cy.edges('.hyp').toggleClass('faded', on);
-    cy.edges('.hyp.on').removeClass('faded');
+    cy.edges('.hyp').toggleClass('faded', on);  // includes path edges, so a broken path shows where evidence runs out
   }
 
   function showPath() {
     const t = tsel.value, r = parseInt(rsel.value || '0', 10) || 0;
     const p = (D.paths[t] || [])[r];
-    if (cy) { cy.elements().removeClass('on dim'); }
+    if (cy) { cy.elements().removeClass('on dim sel nbr'); }
     if (!p) { $('panel').innerHTML = '<p class="muted">No path found.</p>'; return; }
     const ids = new Set(p.edges);
     if (cy) {
@@ -294,6 +296,13 @@ footer { max-width:1400px; margin:0 auto; padding: 0 16px 28px; color: var(--mut
   }
 
   function showNode(id) {
+    if (cy) {
+      cy.elements().removeClass('sel nbr');
+      const n = cy.getElementById(id);
+      n.addClass('sel');
+      n.connectedEdges().addClass('nbr');
+      n.neighborhood('node').addClass('nbr');
+    }
     const n = D.nodes.find(x => x.id === id);
     const ins = D.edges.filter(e => e.target === id), outs = D.edges.filter(e => e.source === id);
     const li = (e, other) => `<li>${esc(pretty(e.predicate))} ${esc(nameOf[other])}${evChip(e)}</li>`;
@@ -322,13 +331,18 @@ footer { max-width:1400px; margin:0 auto; padding: 0 16px 28px; color: var(--mut
   build();
   fillRanks();
   showPath();
-  if (cy) cy.fit(undefined, 30);
-  window.addEventListener('resize', () => { if (cy) cy.fit(undefined, 30); });
+  // Fit once the container has its real size; the first layout pass can report 0 x 0
+  const refit = () => { if (cy && cy.width() > 0 && cy.height() > 0) { cy.resize(); cy.fit(undefined, 30); } };
+  requestAnimationFrame(refit);
+  window.addEventListener('load', refit);
+  window.addEventListener('resize', refit);
+  if (cy && window.ResizeObserver) new ResizeObserver(refit).observe($('cy'));
 })();
 </script>
 </body>
 </html>
 """
+
 
 
 
