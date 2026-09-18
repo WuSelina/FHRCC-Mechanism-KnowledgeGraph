@@ -70,6 +70,51 @@ def _edge_id(e) -> Tuple[str, str, str]:
     return (e.subject, e.predicate, e.object)
 
 
+def _curve_points(p0: Tuple[float, float], p2: Tuple[float, float], rad: float, n: int = 48) -> List[Tuple[float, float]]:
+    """Points along matplotlib's arc3 connection (quadratic Bezier) between two node centers."""
+    (x1, y1), (x2, y2) = p0, p2
+    cx, cy = (x1 + x2) / 2 + rad * (y2 - y1), (y1 + y2) / 2 - rad * (x2 - x1)
+    pts = []
+    for i in range(n + 1):
+        t = i / n
+        pts.append(((1 - t) ** 2 * x1 + 2 * (1 - t) * t * cx + t * t * x2, (1 - t) ** 2 * y1 + 2 * (1 - t) * t * cy + t * t * y2))
+    return pts
+
+
+def _route_rad(
+    src: str,
+    dst: str,
+    xy: Dict[str, Tuple[float, float]],
+    default: float,
+    bw: float,
+    bh: float,
+    x_bounds: Tuple[float, float],
+    margin: float = 0.03,
+) -> float:
+    """Keep the default curvature unless it crosses a node box; then use the gentlest bend that clears all boxes."""
+
+    def cost(rad: float) -> int:
+        pts = _curve_points(xy[src], xy[dst], rad)
+        hits = 0
+        for px, py in pts:
+            if not (x_bounds[0] <= px <= x_bounds[1]):
+                hits += 5  # drifting off the canvas is worse than clipping a box edge
+            for nid, (nx, ny) in xy.items():
+                if nid in (src, dst):
+                    continue
+                if abs(px - nx) < bw / 2 + margin and abs(py - ny) < bh / 2 + margin:
+                    hits += 1
+        return hits
+
+    if cost(default) == 0:
+        return default
+    for mag in (0.03, 0.05, 0.08, 0.12, 0.18, 0.26, 0.36, 0.5):
+        for rad in (mag, -mag):
+            if cost(rad) == 0:
+                return rad
+    return default  # no clean route exists; a half-clearing detour only adds clutter
+
+
 def _panel_header(ax, title: str, subtitle: str) -> None:
     ax.set_title(title, loc = "left", fontsize = TITLE_PT, fontweight = "bold", pad = 34)
     ax.text(0, 1.035, subtitle, transform = ax.transAxes, fontsize = SUBTITLE_PT, color = INK2)
@@ -86,7 +131,7 @@ def draw_overview(
     from matplotlib.lines import Line2D
     from matplotlib.patches import FancyArrowPatch, FancyBboxPatch, Patch
 
-    pos = layered_layout(graph)
+    pos = layered_layout(graph, spine = highlight.node_ids() if highlight else None)
     sx, sy, bw, bh = 2.85, 1.2, 2.5, 0.82
     xy = {n: (p[0] * sx, -p[1] * sy) for n, p in pos.items()}
     xs = [p[0] for p in xy.values()]
@@ -95,7 +140,8 @@ def draw_overview(
     height = (max(ys) - min(ys) + bh + 0.9) / 0.87  # axes occupy 87% of the figure height
 
     fig, ax = plt.subplots(figsize = (width, height))
-    ax.set_xlim(min(xs) - bw / 2 - 0.5, max(xs) + bw / 2 + 0.5)
+    x_bounds = (min(xs) - bw / 2 - 0.5, max(xs) + bw / 2 + 0.5)
+    ax.set_xlim(*x_bounds)
     ax.set_ylim(min(ys) - bh / 2 - 0.25, max(ys) + bh / 2 + 0.25)
     ax.set_aspect("equal")
     ax.axis("off")
@@ -124,7 +170,8 @@ def draw_overview(
     for e in sorted(graph.edges, key = lambda e: _edge_id(e) in on_path):
         (x1, y1), (x2, y2) = xy[e.subject], xy[e.object]
         span = abs(pos[e.object][1] - pos[e.subject][1])
-        rad = 0.0 if span <= 1 and abs(x2 - x1) < 0.1 else (0.10 if x2 >= x1 else -0.10) * min(span, 3)
+        default = 0.0 if span <= 1 and abs(x2 - x1) < 0.1 else (0.10 if x2 >= x1 else -0.10) * min(span, 3)
+        rad = _route_rad(e.subject, e.object, xy, default, bw, bh, x_bounds)
         hi = _edge_id(e) in on_path
         color = INK if hi else MUTED
         arrow = FancyArrowPatch(
@@ -141,7 +188,7 @@ def draw_overview(
             ls = (0, (4, 2.5)) if is_hypothesis(e) else "-",
             color = color,
             alpha = 1.0 if hi else 0.62,
-            zorder = 6 if hi else 2,
+            zorder = 2.6 if hi else 2,  # highlighted path sits above other edges but behind boxes, so it never covers box text
         )
         ax.add_patch(arrow)
 
@@ -307,6 +354,9 @@ def _save(fig, out_path: str) -> None:
     import matplotlib.pyplot as plt
 
     plt.close(fig)
+
+
+
 
 
 

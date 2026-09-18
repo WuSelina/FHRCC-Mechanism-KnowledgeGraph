@@ -55,6 +55,17 @@ def test_layout_is_deterministic_and_mostly_forward(full_graph):
     assert forward / len(full_graph.edges) > 0.9
 
 
+def test_spine_is_straight_and_its_channel_is_clear(full_graph):
+    spine = k_shortest_paths_explainable(full_graph, "gene:FH", "phenotype:cancer", k = 1, max_hops = 14)[0].node_ids()
+    pos = layered_layout(full_graph, spine = spine)
+    assert all(pos[n][0] == 0.0 for n in spine)
+    rows = {pos[n][1] for n in spine}
+    top, bottom = min(rows), max(rows)
+    for n, (x, y) in pos.items():
+        if n not in spine and top <= y <= bottom:
+            assert abs(x) >= 0.7, f"{n} sits in the spine's channel"
+
+
 def test_web_payload_and_html(full_graph, tmp_path):
     payload = web.build_payload(full_graph, "gene:FH")
     assert len(payload["nodes"]) == len(full_graph.nodes)
@@ -68,6 +79,17 @@ def test_web_payload_and_html(full_graph, tmp_path):
     html = out.read_text(encoding = "utf-8")
     assert "cytoscape" in html and "__DATA__" not in html
     assert html.count("</script>") == 3  # data, cytoscape, app: nothing in the data closes a script early
+
+
+def test_edge_routing_bends_around_boxes_in_the_way():
+    from fhrcc_mechanismkg import viz
+
+    xy = {"a": (0.0, 0.0), "blocker": (0.0, -1.0), "b": (0.0, -2.0), "free": (5.0, -1.0)}
+    bounds = (-4.0, 9.0)
+    assert viz._route_rad("a", "b", xy, 0.0, 0.5, 0.7, bounds) != 0.0
+    assert viz._route_rad("a", "free", xy, 0.1, 0.5, 0.7, bounds) == 0.1  # nothing in the way, keep default
+    wide = {"a": (0.0, 0.0), "blocker": (0.0, -1.0), "b": (0.0, -2.0)}
+    assert viz._route_rad("a", "b", wide, 0.0, 30.0, 0.7, bounds) == 0.0  # no clean route, keep default
 
 
 def test_static_figures_render(full_graph, tmp_path):

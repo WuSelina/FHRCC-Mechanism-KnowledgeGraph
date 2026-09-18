@@ -1,7 +1,7 @@
-"""Dependency-free layered (top-to-bottom) layout for a directed, possibly cyclic graph."""
+﻿"""Dependency-free layered (top-to-bottom) layout for a directed, possibly cyclic graph."""
 from __future__ import annotations
 from collections import Counter
-from typing import Dict, List, Set, Tuple
+from typing import Dict, List, Optional, Set, Tuple
 from .graph import Graph
 
 
@@ -113,8 +113,11 @@ def assign_layers(graph: Graph) -> Dict[str, int]:
     return {n: l - base for n, l in layer.items()}
 
 
-def layered_layout(graph: Graph, sweeps: int = 8) -> Dict[str, Tuple[float, float]]:
-    """Return {node_id: (x, y)}; y is the layer index (0 = top), x is centred within the layer."""
+def layered_layout(graph: Graph, sweeps: int = 8, spine: Optional[List[str]] = None) -> Dict[str, Tuple[float, float]]:
+    """Return {node_id: (x, y)}; y is the layer index (0 = top), x is centred within the layer.
+
+    `spine` is an optional path of node ids to draw as a straight vertical line at x = 0.
+    """
     layer = assign_layers(graph)
     n_layers = max(layer.values()) + 1 if layer else 0
     rows: List[List[str]] = [[] for _ in range(n_layers)]
@@ -148,4 +151,38 @@ def layered_layout(graph: Graph, sweeps: int = 8) -> Dict[str, Tuple[float, floa
         for row in reversed(rows[:-1]):
             reorder(row, above = False)
 
+    if spine:
+        _apply_spine(rows, x, layer, [n for n in spine if n in graph.nodes])
+
     return {n: (x[n], float(layer[n])) for n in graph.nodes}
+
+
+def _apply_spine(rows: List[List[str]], x: Dict[str, float], layer: Dict[str, int], spine: List[str]) -> None:
+    """Pin a path of nodes to x = 0 and keep x = 0 clear in the rows between them.
+
+    Rows that hold a spine node put its neighbours at +/-1; rows the spine only passes over
+    reserve a channel, so an edge drawn straight down the spine crosses no boxes.
+    """
+    if not spine:
+        return
+    on_spine = {layer[n]: n for n in spine}
+    top, bottom = min(on_spine), max(on_spine)
+    for li in range(top, bottom + 1):
+        row = rows[li]
+        pinned = on_spine.get(li)
+        pivot = x[pinned] if pinned else 0.0
+        others = sorted((n for n in row if n != pinned), key = lambda n: x[n])
+        left = [n for n in others if x[n] < pivot]
+        right = [n for n in others if x[n] >= pivot]
+        while len(right) - len(left) > 1:  # keep the two sides balanced
+            left.append(right.pop(0))
+        while len(left) - len(right) > 1:
+            right.insert(0, left.pop())
+        near = 1.0 if pinned else 0.7
+        if pinned:
+            x[pinned] = 0.0
+        for i, n in enumerate(reversed(left)):
+            x[n] = -(near + i)
+        for i, n in enumerate(right):
+            x[n] = near + i
+

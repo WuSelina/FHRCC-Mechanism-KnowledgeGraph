@@ -20,7 +20,9 @@ CYTOSCAPE_URL = "https://cdn.jsdelivr.net/npm/cytoscape@3.30.4/dist/cytoscape.mi
 
 
 def build_payload(graph: Graph, source: str, k: int = 5, max_hops: int = 14) -> Dict[str, Any]:
-    pos = layered_layout(graph)
+    default_target = "phenotype:cancer" if "phenotype:cancer" in graph.nodes else None
+    best = k_shortest_paths_explainable(graph, source, default_target, k = 1, max_hops = max_hops) if default_target else []
+    pos = layered_layout(graph, spine = best[0].node_ids() if best else None)
     nodes = []
     for n in graph.nodes.values():
         x, y = pos[n.id]
@@ -327,5 +329,6 @@ footer { max-width:1400px; margin:0 auto; padding: 0 16px 28px; color: var(--mut
 </body>
 </html>
 """
+
 
 
