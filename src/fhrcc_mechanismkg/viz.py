@@ -306,46 +306,51 @@ def draw_path_comparison(graph: Graph, paths: List[PathResult], out_path: str, s
     _save(fig, out_path)
 
 
+def _join_or(items: List[str]) -> str:
+    return items[0] if len(items) == 1 else ", ".join(items[:-1]) + " or " + items[-1]
+
+
 def draw_evidence_audit(graph: Graph, best: PathResult, out_path: str, source_name: str, target_name: str) -> None:
     plt = _mpl()
     from matplotlib.patches import Patch
 
-    fig, (a1, a2) = plt.subplots(1, 2, figsize = (17, 5.8), gridspec_kw = {"width_ratios": [1, 1.15]})
+    fig, (a1, a2) = plt.subplots(1, 2, figsize = (17, 5.6), gridspec_kw = {"width_ratios": [1, 1.15]})
 
+    # Left: evidence levels that are actually used, largest first; empty levels go in the subheader
     counts = evidence_counts(graph)
-    levels = EVIDENCE_ORDER[::-1]
-    ypos = list(range(len(levels)))
+    used = sorted(((l, c) for l, c in counts.items() if c), key = lambda t: (-t[1], EVIDENCE_ORDER.index(t[0])))
+    absent = [l.replace("_", " ") for l in EVIDENCE_ORDER if not counts[l]]
+    levels = [l for l, _ in used][::-1]  # barh draws bottom-up, so reverse to put the largest on top
     vals = [counts[l] for l in levels]
-    cols = [ORANGE if l == "hypothesis" else BLUE for l in levels]
-    a1.barh(ypos, vals, height = 0.5, color = cols, edgecolor = SURFACE, lw = 1.5)
+    ypos = list(range(len(levels)))
+    a1.barh(ypos, vals, height = 0.5, color = [ORANGE if l == "hypothesis" else BLUE for l in levels], edgecolor = SURFACE, lw = 1.5)
     for y, v in zip(ypos, vals):
-        a1.text(v + 0.3, y, str(v) if v else "0 (none yet)", va = "center", fontsize = LABEL_PT, color = INK2 if v else MUTED)
+        a1.text(v + 0.3, y, str(v), va = "center", fontsize = LABEL_PT, color = INK2)
     a1.set_yticks(ypos)
     a1.set_yticklabels([l.replace("_", " ") for l in levels])
     a1.set_xlim(0, 25)
     a1.set_xlabel("Number of Edges", labelpad = 8)
-    _panel_header(a1, f'{counts["hypothesis"]} of {len(graph.edges)} Edges Are Hypotheses', "Evidence level per edge, roughly ordered clinical to hypothesis")
+    sub = f"No edges rest on {_join_or(absent)} evidence" if absent else "Evidence level of every edge"
+    _panel_header(a1, f'{counts["hypothesis"]} of {len(graph.edges)} Edges Are Hypotheses', sub)
     _clean_axes(a1)
 
+    # Right: one bar per step along the path, first step at the top, labeled by the node it leads into
     steps = best.steps
     ypos2 = list(range(len(steps)))[::-1]
-    w = [s.edge.weight for s in steps]
-    cols2 = [ORANGE if is_hypothesis(s.edge) else BLUE for s in steps]
-    a2.barh(ypos2, w, height = 0.5, color = cols2, edgecolor = SURFACE, lw = 1.5)
+    a2.barh(ypos2, [s.edge.weight for s in steps], height = 0.5, color = [ORANGE if is_hypothesis(s.edge) else BLUE for s in steps], edgecolor = SURFACE, lw = 1.5)
     for y, s in zip(ypos2, steps):
         a2.text(s.edge.weight + 0.015, y, f"{s.edge.weight:.2f}", va = "center", fontsize = LABEL_PT, color = INK2)
-    lab = [f"{_short(graph, s.edge.subject, 30)} → {_short(graph, s.edge.object, 30)}" for s in steps]
     a2.set_yticks(ypos2)
-    a2.set_yticklabels(lab)
+    a2.set_yticklabels([f"{i}. {graph.nodes[s.edge.object].name}" for i, s in enumerate(steps, 1)])
     a2.set_xlim(0, 1.0)
     a2.set_xlabel("Edge Confidence (Weight)", labelpad = 8)
-    _panel_header(a2, "Confidence Along the Lowest-Cost Path", "Confident at the root, hypothesis-level at the final step")
+    a2.set_ylabel("Path Step (Edge Into Node)", labelpad = 8)
+    _panel_header(a2, "Confidence Along the Lowest-Cost Path", f"Edge confidence at each step, from {source_name} (top) to {target_name.title()} (bottom)")
     _clean_axes(a2)
     a2.legend(handles = [Patch(fc = BLUE, label = "Supported"), Patch(fc = ORANGE, label = "Hypothesis")], loc = "lower right", frameon = False, fontsize = LEGEND_PT, labelcolor = INK2)
 
-    fig.tight_layout(w_pad = 3)
+    fig.tight_layout(w_pad = 3, pad = 1.6)
     _save(fig, out_path)
-
 
 def _save(fig, out_path: str) -> None:
     p = Path(out_path)
@@ -354,6 +359,7 @@ def _save(fig, out_path: str) -> None:
     import matplotlib.pyplot as plt
 
     plt.close(fig)
+
 
 
 
