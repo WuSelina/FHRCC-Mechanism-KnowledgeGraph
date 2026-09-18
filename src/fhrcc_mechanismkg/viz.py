@@ -28,6 +28,8 @@ TITLE_PT = 14  # panel and figure titles, bold
 SUBTITLE_PT = 12  # subheaders, regular weight
 LABEL_PT = 10  # tick labels, annotations, axis titles (bold), node text
 LEGEND_PT = 11
+NODE_PT = 13  # text inside the flow chart boxes
+OVERVIEW_LEGEND_PT = 12
 
 
 def _mpl():
@@ -85,7 +87,7 @@ def draw_overview(
     from matplotlib.patches import FancyArrowPatch, FancyBboxPatch, Patch
 
     pos = layered_layout(graph)
-    sx, sy, bw, bh = 2.6, 1.02, 2.15, 0.68
+    sx, sy, bw, bh = 2.85, 1.2, 2.5, 0.82
     xy = {n: (p[0] * sx, -p[1] * sy) for n, p in pos.items()}
     xs = [p[0] for p in xy.values()]
     ys = [p[1] for p in xy.values()]
@@ -116,7 +118,7 @@ def draw_overview(
         ax.add_patch(p)
         patches[n.id] = p
         label = textwrap.fill(n.name, 22)
-        ax.text(x, y, label, ha = "center", va = "center", fontsize = LABEL_PT, color = INK, zorder = 4, linespacing = 1.15)
+        ax.text(x, y, label, ha = "center", va = "center", fontsize = NODE_PT, color = INK, zorder = 4, linespacing = 1.15)
 
     on_path: Set[Tuple[str, str, str]] = {_edge_id(s.edge) for s in highlight.steps} if highlight else set()
     for e in sorted(graph.edges, key = lambda e: _edge_id(e) in on_path):
@@ -156,7 +158,7 @@ def draw_overview(
         loc = "lower center",
         ncol = 4,
         frameon = False,
-        fontsize = LEGEND_PT,
+        fontsize = OVERVIEW_LEGEND_PT,
         labelcolor = INK2,
         bbox_to_anchor = (0.5, 0.004),
         columnspacing = 1.6,
@@ -164,7 +166,7 @@ def draw_overview(
     fig.text(0.5, 0.988, title, ha = "center", va = "top", fontsize = TITLE_PT, fontweight = "bold", color = INK)
     if subtitle:
         fig.text(0.5, 0.962, subtitle, ha = "center", va = "top", fontsize = SUBTITLE_PT, color = INK2)
-    fig.text(0.5, 0.06, "Line width = edge confidence", ha = "center", fontsize = LEGEND_PT, color = INK2)
+    fig.text(0.5, 0.06, "Line width = edge confidence", ha = "center", fontsize = OVERVIEW_LEGEND_PT, color = INK2)
     fig.subplots_adjust(left = 0, right = 1, top = 0.945, bottom = 0.075)
     _save(fig, out_path)
 
@@ -182,8 +184,25 @@ def _clean_axes(ax) -> None:
     ax.set_axisbelow(True)
 
 
-def _plural(n: int, word: str) -> str:
-    return f"{n} {word}" if n == 1 else f"{n} {word}s"
+def _path_labels(graph: Graph, paths: List[PathResult]) -> List[str]:
+    """Label each path by its last step before the outcome; add a second line to break ties."""
+    base = [_short(graph, p.node_ids()[-2], 36) for p in paths]
+    labels = list(base)
+    for i, p in enumerate(paths):
+        twins = [j for j, b in enumerate(base) if b == base[i]]
+        if len(twins) < 2:
+            continue
+        ids = p.node_ids()
+        for back in range(3, len(ids) + 1):
+            mine = ids[-back]
+            others = {paths[j].node_ids()[-back] for j in twins if j != i and len(paths[j].node_ids()) >= back}
+            if mine not in others:
+                labels[i] = f"{base[i]}\n(via {_short(graph, mine, 30)})"
+                break
+    return labels
+
+
+def _plural(n: int, word: str) -> str:    return f"{n} {word}" if n == 1 else f"{n} {word}s"
 
 
 def draw_path_comparison(graph: Graph, paths: List[PathResult], out_path: str, source_name: str, target_name: str) -> None:
@@ -194,7 +213,7 @@ def draw_path_comparison(graph: Graph, paths: List[PathResult], out_path: str, s
 
     summ = [path_summary(p) for p in paths]
     # Paths are ranked top to bottom; the label is the last step before the outcome
-    labels = [_short(graph, p.node_ids()[-2], 36) for p in paths]
+    labels = _path_labels(graph, paths)
     ypos = list(range(len(paths)))[::-1]
     conf = [s["confidence_cost"] for s in summ]
     pen = [s["predicate_penalty"] for s in summ]
@@ -288,5 +307,6 @@ def _save(fig, out_path: str) -> None:
     import matplotlib.pyplot as plt
 
     plt.close(fig)
+
 
 
